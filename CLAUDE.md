@@ -62,6 +62,9 @@ even just checking status is fine; committing is not, until asked.
 - Copy `.env.example` to `.env` and fill in `VITE_SUPABASE_URL` (the bare project URL,
   e.g. `https://<ref>.supabase.co` — no path suffix) and `VITE_SUPABASE_ANON_KEY` (the
   "anon public" or newer "Publishable" key from Settings → API Keys).
+- `VITE_SHOP_NAME` is a display-only string (the shop's name, shown on the login screen
+  and the top nav bar via `src/lib/config.ts`) — not a credential, falls back to
+  "Uniform Shop" if unset.
 - Never put the `service_role` / `secret` key in the frontend `.env` — it only ever goes
   into a GitHub Actions secret (used by the keep-alive ping).
 - `.env` is gitignored; only `.env.example` (with placeholder values) is committed.

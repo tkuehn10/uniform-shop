@@ -1,6 +1,6 @@
 # Implementation Roadmap — Uniform Shop Stock System
 
-**Version:** 0.8
+**Version:** 0.9
 **Date:** 12 September 2026
 **Repository:** https://github.com/tkuehn10/uniform-shop
 
@@ -39,8 +39,8 @@ A single ordered checklist pulling together the decisions and action items scatt
    - The project gets a free `<project-name>.pages.dev` URL immediately after the first deploy; a custom domain can be added later under Settings → Custom domains if wanted.
 5. [x] Add the Supabase URL and anon/publishable key as **build-time** variables in the Cloudflare project settings:
    - Cloudflare's current dashboard splits this into two separate sections that look similar but aren't: **Settings → Variables & Secrets** (runtime — only usable by actual Worker/Functions code) and **Settings → Build → Build variables and secrets** (build-time — used while `npm run build` runs). This project is static-assets-only (no server-side Worker code), so the runtime section will refuse with "Variables cannot be added to a Worker that only has static assets" — that's expected; use the **Build** section instead.
-   - In **Settings → Build → Build variables and secrets**, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` for both the **Production** and **Preview** environments (same values for both — there's only one Supabase project).
-   - Add both as the plaintext **Variable** type, not **Secret**. Cloudflare exposes both types at build time equally, but the anon/publishable key is designed to be public and ends up readable in the deployed JS bundle regardless — marking it Secret only makes it write-only in the dashboard (you can't view it again later) without hiding anything real. Reserve Secret for values that must never appear in the shipped frontend, like the `service_role` key (which doesn't go here at all — see step 2).
+   - In **Settings → Build → Build variables and secrets**, add `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_SHOP_NAME` for both the **Production** and **Preview** environments (same values for both — there's only one Supabase project).
+   - Add all three as the plaintext **Variable** type, not **Secret**. Cloudflare exposes both types at build time equally, but the anon/publishable key is designed to be public and ends up readable in the deployed JS bundle regardless — marking it Secret only makes it write-only in the dashboard (you can't view it again later) without hiding anything real. Reserve Secret for values that must never appear in the shipped frontend, like the `service_role` key (which doesn't go here at all — see step 2).
    - `VITE_SUPABASE_URL` must be the bare project URL, `https://<project-ref>.supabase.co` — no path suffix like `/rest/v1/`; the Supabase client library appends that itself.
    - Adding or changing build variables doesn't redeploy the site automatically — trigger a new deploy afterwards (push a commit, or use **Deployments → Retry deployment**).
 6. [x] Set up the scheduled keep-alive ping (a GitHub Actions cron job hitting the Supabase project once a day) to prevent the free-tier pause after 7 days idle:
@@ -76,6 +76,7 @@ Roughly the order a real shop would start using the system, so each piece is tes
 
 ## Change log
 
+- **v0.9:** Added `VITE_SHOP_NAME` — the shop's display name, shown on the login screen and the app's top nav bar (falls back to "Uniform Shop" if unset). Updated the Cloudflare build-variables step and README to include it alongside the Supabase env vars.
 - **v0.8:** Phase 1 and Phase 2 complete: the keep-alive workflow is confirmed running (repo variables added, manual run succeeded), and the migrations are pushed to the real Supabase project with the first Admin login provisioned. Next up is Phase 3 — the core screens, starting with item management and bulk initial stock entry.
 - **v0.7:** Checked off Phase 1 steps 4-5 (Cloudflare Pages connected and build variables set, confirmed working end-to-end). Added the keep-alive GitHub Actions workflow (`.github/workflows/supabase-keep-alive.yml`) for step 6, plus the one-off repo-variable setup it needs.
 - **v0.6:** Corrected step 5: Cloudflare's current dashboard requires build-time variables to be set under Settings → Build → Build variables and secrets, not the runtime Settings → Variables & Secrets section (which now refuses on a static-assets-only project with "Variables cannot be added to a Worker that only has static assets").

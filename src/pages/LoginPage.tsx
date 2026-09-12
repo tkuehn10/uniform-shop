@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { SHOP_NAME } from '../lib/config';
 
 export function LoginPage() {
   const { signInWithPassword, session } = useAuth();
@@ -32,7 +33,7 @@ export function LoginPage() {
   return (
     <div className='centered-page'>
       <form className='card' onSubmit={handleSubmit}>
-        <h1>Uniform Shop Stock</h1>
+        <h1>{SHOP_NAME}</h1>
         <p className='muted'>Ask an Admin to create your login.</p>
         <label>
           Email

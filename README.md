@@ -29,6 +29,8 @@ Planning docs (requirements, architecture decisions, database schema, screen spe
 
    Supabase is mid-rollout (through 2026) of renaming these keys — you may see either the legacy **"anon" / "anon public"** key or the newer **"Publishable key"** (starts with `sb_publishable_...`). Either one works as `VITE_SUPABASE_ANON_KEY`; use whichever your project shows. Never use the "service_role" / "secret" key here.
 
+   Also set `VITE_SHOP_NAME` to the shop's actual name -- it's shown on the login screen and in the app's top nav bar. Not sensitive, just a display string; falls back to "Uniform Shop" if left unset.
+
 3. **Link the Supabase CLI to your project** (one-off, per machine)
 
    ```sh
@@ -70,7 +72,7 @@ Planning docs (requirements, architecture decisions, database schema, screen spe
 
 ## Deploying
 
-Connect this repository to a Cloudflare Pages project (build command `npm run build`, output directory `dist`). Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as environment variables in the Pages project settings — every push to `main` then deploys automatically.
+Connect this repository to a Cloudflare Pages project (build command `npm run build`, output directory `dist`). Add `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_SHOP_NAME` as build variables in the Pages project settings (see `docs/implementation-roadmap.md` Phase 1 step 5 for exactly where) — every push to `main` then deploys automatically.
 
 The Supabase project's free tier pauses after 7 days with no activity — `.github/workflows/supabase-keep-alive.yml` pings it daily to prevent this. It needs `SUPABASE_URL` and `SUPABASE_ANON_KEY` set as repository **variables** (Settings → Secrets and variables → Actions → Variables) before it will run successfully; see `docs/implementation-roadmap.md` Phase 1 step 6.
 

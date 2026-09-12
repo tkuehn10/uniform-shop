@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { SHOP_NAME } from '../lib/config';
 
 // Nav structure from docs/screens-and-flows.md section 1.
 export function Layout() {
@@ -8,7 +9,7 @@ export function Layout() {
   return (
     <div className='app-shell'>
       <header className='app-header'>
-        <span className='brand'>Uniform Shop</span>
+        <span className='brand'>{SHOP_NAME}</span>
         <nav>
           <NavLink to='/stock'>Stock</NavLink>
           <NavLink to='/sales'>Sales</NavLink>
