@@ -5,6 +5,10 @@ import { RequireAdmin, RequireAuth } from './components/RequireAuth';
 import { LoginPage } from './pages/LoginPage';
 import { StockPage } from './pages/StockPage';
 import { SalesPage } from './pages/SalesPage';
+import { OrdersPage } from './pages/orders/OrdersPage';
+import { OrderFormPage } from './pages/orders/OrderFormPage';
+import { OrderDetailPage } from './pages/orders/OrderDetailPage';
+import { DeliveriesPage } from './pages/orders/DeliveriesPage';
 import { SettingsPage } from './pages/settings/SettingsPage';
 import { ItemsPage } from './pages/settings/ItemsPage';
 import { ItemFormPage } from './pages/settings/ItemFormPage';
@@ -37,7 +41,31 @@ function App() {
           path='/orders'
           element={
             <RequireAdmin>
-              <PlaceholderPage title='Orders' screenRef='sections 2.6-2.10' />
+              <OrdersPage />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path='/orders/new'
+          element={
+            <RequireAdmin>
+              <OrderFormPage />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path='/orders/deliveries'
+          element={
+            <RequireAdmin>
+              <DeliveriesPage />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path='/orders/:id'
+          element={
+            <RequireAdmin>
+              <OrderDetailPage />
             </RequireAdmin>
           }
         />
