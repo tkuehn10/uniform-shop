@@ -1,6 +1,6 @@
 # Database Schema — Uniform Shop Stock System
 
-**Version:** 0.5 (draft)
+**Version:** 0.6 (draft)
 **Date:** 12 September 2026
 **Target platform:** Postgres via Supabase (see `adr-001-backend-hosting.md`)
 
@@ -13,29 +13,30 @@ This document turns the conceptual data model in `requirements.md` (section 4) i
 - **Roles are enforced with Postgres Row-Level Security (RLS)**, not just application code. Each authenticated user has a `profiles` row with a `role` of `admin` or `user`. RLS policies on each table check this role, so even a bug in the frontend can't let a User perform an Admin-only action.
 - **Users are Supabase Auth users** (`auth.users`, managed by Supabase) with a matching `public.profiles` row for app-specific fields (display name, role). This is the standard Supabase pattern.
 - **There is no in-app screen for creating staff logins.** New logins are provisioned manually (Supabase dashboard or a short script) — see `screens-and-flows.md` section 4 for the exact steps. This is a deliberate simplification given how rarely staff are added.
+- **Item categories are a fixed, mandatory set**, not free text: `item_category` is a Postgres enum (`Tops`, `Bottoms`, `Hats`, `Socks`), and `items.category` is `not null`. The dropdown in the Admin item-edit screen is the only way to set it, matching requirements.md REQ-1.
 - All tables use `uuid` primary keys (Postgres `gen_random_uuid()`) and `created_at`/`updated_at` timestamps unless noted.
 
 ## 2. Table summary
 
-| Table                | Purpose                                              | Key requirement(s)                    |
-| -------------------- | ---------------------------------------------------- | ------------------------------------- |
-| `profiles`           | App-specific user info + role                        | Section 3 (roles)                     |
-| `items`              | Uniform products                                     | REQ-1, REQ-2, REQ-36, REQ-37          |
-| `item_photos`        | One compressed photo per item, stored in-database    | REQ-1, REQ-2                          |
-| `item_sizes`         | Sizes offered per item, with cached on-hand quantity | REQ-1, A5, REQ-36, REQ-37             |
-| `stock_movements`    | Ledger of every stock change                         | REQ-7, REQ-17, REQ-23, REQ-34, REQ-35 |
-| `suppliers`          | Remembered supplier names                            | REQ-3, REQ-4                          |
-| `orders`             | Supplier purchase orders                             | REQ-3, REQ-5, REQ-6                   |
-| `order_lines`        | Items/sizes/quantities on an order                   | REQ-3                                 |
-| `deliveries`         | A delivery event against an order                    | REQ-7, REQ-9                          |
-| `delivery_lines`     | Quantities received per item/size in a delivery      | REQ-7, REQ-8                          |
-| `stocktakes`         | A stocktake event                                    | REQ-15, REQ-18                        |
-| `stocktake_counts`   | Counted quantity per item/size in a stocktake        | REQ-15, REQ-16, REQ-17                |
-| `sales`              | A sale transaction                                   | REQ-23                                |
-| `sale_lines`         | Items/sizes/quantities in a sale                     | REQ-23, REQ-24                        |
-| `opening_time_slots` | Recurring weekly opening-time pattern                | REQ-25, REQ-29                        |
-| `roster_claims`      | A name claiming a specific date's slot occurrence    | REQ-27, REQ-28                        |
-| `school_holidays`    | Holiday date ranges                                  | REQ-30, REQ-33                        |
+| Table | Purpose | Key requirement(s) |
+|---|---|---|
+| `profiles` | App-specific user info + role | Section 3 (roles) |
+| `items` | Uniform products | REQ-1, REQ-2, REQ-36, REQ-37 |
+| `item_photos` | One compressed photo per item, stored in-database | REQ-1, REQ-2 |
+| `item_sizes` | Sizes offered per item, with cached on-hand quantity | REQ-1, A5, REQ-36, REQ-37 |
+| `stock_movements` | Ledger of every stock change | REQ-7, REQ-17, REQ-23, REQ-34, REQ-35 |
+| `suppliers` | Remembered supplier names | REQ-3, REQ-4 |
+| `orders` | Supplier purchase orders | REQ-3, REQ-5, REQ-6 |
+| `order_lines` | Items/sizes/quantities on an order | REQ-3 |
+| `deliveries` | A delivery event against an order | REQ-7, REQ-9 |
+| `delivery_lines` | Quantities received per item/size in a delivery | REQ-7, REQ-8 |
+| `stocktakes` | A stocktake event | REQ-15, REQ-18 |
+| `stocktake_counts` | Counted quantity per item/size in a stocktake | REQ-15, REQ-16, REQ-17 |
+| `sales` | A sale transaction | REQ-23 |
+| `sale_lines` | Items/sizes/quantities in a sale | REQ-23, REQ-24 |
+| `opening_time_slots` | Recurring weekly opening-time pattern | REQ-25, REQ-29 |
+| `roster_claims` | A name claiming a specific date's slot occurrence | REQ-27, REQ-28 |
+| `school_holidays` | Holiday date ranges | REQ-30, REQ-33 |
 
 ## 3. Schema (Postgres DDL)
 
@@ -57,10 +58,17 @@ create table profiles (
 -- Items
 -- ============================================================
 
+create type item_category as enum ('Tops', 'Bottoms', 'Hats', 'Socks');
+-- Fixed, mandatory set (requirements.md REQ-1) -- chosen from a dropdown in
+-- the Admin item-edit screen, not typed. Added in migration
+-- 20260912000002_item_categories.sql, which also backfills any pre-existing
+-- item with a null/unrecognized category to 'Tops' before applying the
+-- not-null constraint below (see that migration's own comments).
+
 create table items (
   id uuid primary key default gen_random_uuid(),
   name text not null,
-  category text,
+  category item_category not null,
   price numeric(10,2),           -- reference only, no payment processing (A4)
   active boolean not null default true,   -- archived, not deleted, when false (REQ-36, REQ-37, A15)
   created_at timestamptz not null default now(),
@@ -272,6 +280,7 @@ Every table above has RLS enabled. The general pattern:
 
 ## 6. Change log
 
+- **v0.6:** Item categories are now mandatory and restricted to a fixed set instead of optional free text: added the `item_category` enum (`Tops`, `Bottoms`, `Hats`, `Socks`) and made `items.category` `not null` — `supabase/migrations/20260912000002_item_categories.sql`. Existing rows with a null or unrecognized category are backfilled to `'Tops'` by that migration rather than failing it.
 - **v0.5:** Resolved all three remaining open questions as decisions: `order_number` is unique per supplier (added as a DB constraint), CSV export is a plain client-side query-and-download, and roster/holiday edits are overwrite-in-place with no audit trail.
 - **v0.4:** Moved item photos out of Supabase Storage and into Postgres — dropped `items.photo_url`, added a dedicated `item_photos` table storing compressed image bytes (`bytea`), per ADR-001 Amendment 1. Reduces the backend to a single service (Postgres + Auth), at the cost of a somewhat larger database as photos are added.
 - **v0.3:** Added `active` flags on `items` and `item_sizes` for archiving (REQ-36, REQ-37), a `manual_adjustment` reason and `note` column on `stock_movements` to cover initial stock entry and ad-hoc corrections (REQ-34, REQ-35), and a matching RLS insert policy for direct manual-adjustment writes.

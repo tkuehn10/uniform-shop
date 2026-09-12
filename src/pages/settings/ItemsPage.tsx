@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
+import type { ItemCategory } from '../../lib/database.types';
+
+const ITEM_CATEGORIES: ItemCategory[] = ['Tops', 'Bottoms', 'Hats', 'Socks'];
 
 // REQ-1, REQ-36: Admin's item management list (screens-and-flows.md 2.4).
 // Entry point into item detail/edit (2.3). Archived items are hidden by
@@ -9,7 +12,7 @@ import { supabase } from '../../lib/supabaseClient';
 interface ItemRow {
   id: string;
   name: string;
-  category: string | null;
+  category: ItemCategory;
   price: number | null;
   active: boolean;
   totalOnHand: number;
@@ -19,7 +22,7 @@ interface ItemRow {
 interface JoinedItem {
   id: string;
   name: string;
-  category: string | null;
+  category: ItemCategory;
   price: number | null;
   active: boolean;
   item_sizes: { quantity_on_hand: number; active: boolean }[];
@@ -31,6 +34,7 @@ export function ItemsPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [showArchived, setShowArchived] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState<ItemCategory | 'all'>('all');
 
   async function load() {
     setLoading(true);
@@ -67,7 +71,8 @@ export function ItemsPage() {
 
   const filtered = items
     .filter(i => showArchived || i.active)
-    .filter(i => `${i.name} ${i.category ?? ''}`.toLowerCase().includes(search.toLowerCase()));
+    .filter(i => categoryFilter === 'all' || i.category === categoryFilter)
+    .filter(i => `${i.name} ${i.category}`.toLowerCase().includes(search.toLowerCase()));
 
   return (
     <div className='page'>
@@ -85,6 +90,16 @@ export function ItemsPage() {
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
+        <select
+          value={categoryFilter}
+          onChange={e => setCategoryFilter(e.target.value as ItemCategory | 'all')}>
+          <option value='all'>All categories</option>
+          {ITEM_CATEGORIES.map(c => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
         <label className='checkbox-row'>
           <input
             type='checkbox'
@@ -114,7 +129,7 @@ export function ItemsPage() {
             {filtered.map(i => (
               <tr key={i.id}>
                 <td>{i.name}</td>
-                <td>{i.category ?? '—'}</td>
+                <td>{i.category}</td>
                 <td>{i.price != null ? `$${i.price.toFixed(2)}` : '—'}</td>
                 <td>{i.sizeCount}</td>
                 <td>{i.totalOnHand}</td>

@@ -3,7 +3,9 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../auth/AuthContext';
 import { compressImageFile, hexToDataUrl } from '../../lib/photo';
-import type { ItemSize } from '../../lib/database.types';
+import type { ItemCategory, ItemSize } from '../../lib/database.types';
+
+const ITEM_CATEGORIES: ItemCategory[] = ['Tops', 'Bottoms', 'Hats', 'Socks'];
 
 // REQ-1, REQ-2, REQ-35, REQ-36, REQ-37 (screens-and-flows.md 2.3): create/edit
 // an item's details, manage its sizes, adjust stock with a required note, and
@@ -16,7 +18,7 @@ export function ItemFormPage() {
   const { profile } = useAuth();
 
   const [name, setName] = useState('');
-  const [category, setCategory] = useState('');
+  const [category, setCategory] = useState<ItemCategory | ''>('');
   const [price, setPrice] = useState('');
   const [active, setActive] = useState(true);
   const [sizes, setSizes] = useState<ItemSize[]>([]);
@@ -60,7 +62,7 @@ export function ItemFormPage() {
         return;
       }
       setName(data.name);
-      setCategory(data.category ?? '');
+      setCategory(data.category);
       setPrice(data.price != null ? String(data.price) : '');
       setActive(data.active);
 
@@ -89,9 +91,15 @@ export function ItemFormPage() {
     setError(null);
     setSuccess(null);
 
+    if (!category) {
+      setSaving(false);
+      setError('Choose a category.');
+      return;
+    }
+
     const payload = {
       name: name.trim(),
-      category: category.trim() || null,
+      category,
       price: price.trim() ? Number(price) : null
     };
 
@@ -237,7 +245,19 @@ export function ItemFormPage() {
         <div className='field-row'>
           <label className='field'>
             Category
-            <input value={category} onChange={e => setCategory(e.target.value)} />
+            <select
+              value={category}
+              onChange={e => setCategory(e.target.value as ItemCategory)}
+              required>
+              <option value='' disabled>
+                Select a category…
+              </option>
+              {ITEM_CATEGORIES.map(c => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
           </label>
           <label className='field'>
             Price (reference only)

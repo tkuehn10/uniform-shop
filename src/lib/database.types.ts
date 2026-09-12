@@ -15,6 +15,8 @@ export type OrderStatus =
 
 export type StocktakeScope = 'full' | 'spot';
 
+export type ItemCategory = 'Tops' | 'Bottoms' | 'Hats' | 'Socks';
+
 export type StockMovementReason =
   'delivery' | 'sale' | 'stocktake_adjustment' | 'manual_adjustment';
 
@@ -28,7 +30,7 @@ export type Profile = {
 export type Item = {
   id: string;
   name: string;
-  category: string | null;
+  category: ItemCategory;
   price: number | null;
   active: boolean;
   created_at: string;
