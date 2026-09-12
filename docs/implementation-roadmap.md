@@ -1,6 +1,6 @@
 # Implementation Roadmap — Uniform Shop Stock System
 
-**Version:** 0.9
+**Version:** 1.0
 **Date:** 12 September 2026
 **Repository:** https://github.com/tkuehn10/uniform-shop
 
@@ -60,12 +60,12 @@ A single ordered checklist pulling together the decisions and action items scatt
 
 Roughly the order a real shop would start using the system, so each piece is testable as it lands:
 
-11. [ ] Item management + bulk initial stock entry (screens 2.3, 2.4, 2.4a) — lets Admin set up the catalog and enter the shop's actual starting stock
-12. [ ] Stock overview + record-a-sale (screens 2.2, 2.5) — the daily-use core for both roles
-13. [ ] Supplier orders + delivery check-in (screens 2.6–2.10)
-14. [ ] Stocktake, full and spot (screens 2.11–2.13)
-15. [ ] Sales reports + CSV export (screen 2.14)
-16. [ ] Roster + school holidays (screens 2.15–2.17)
+11. [x] Item management + bulk initial stock entry (screens 2.3, 2.4, 2.4a) — lets Admin set up the catalog and enter the shop's actual starting stock
+12. [x] Stock overview + record-a-sale (screens 2.2, 2.5) — the daily-use core for both roles
+13. [x] Supplier orders + delivery check-in (screens 2.6–2.10)
+14. [x] Stocktake, full and spot (screens 2.11–2.13)
+15. [x] Sales reports + CSV export (screen 2.14)
+16. [x] Roster + school holidays (screens 2.15–2.17)
 
 ## Phase 4 — Before real use
 
@@ -76,6 +76,7 @@ Roughly the order a real shop would start using the system, so each piece is tes
 
 ## Change log
 
+- **v1.0:** Phase 3 complete — every screen in `screens-and-flows.md` is built and routed: item management + bulk initial stock entry, the record-a-sale screen (stock overview already existed), supplier orders + delivery check-in, full/spot stocktake, sales reports + CSV export, and roster + opening-times + school holidays. Also fixed `src/lib/database.types.ts`: the hand-written Row types were bare `interface`s, which silently broke every `insert`/`update`/`.eq()` call's typing against postgrest-js's generic constraints — switched to `type` aliases and added the missing `Relationships`/`Views`/`Functions` fields. Next up is Phase 4 — the real test pass and go-live setup.
 - **v0.9:** Added `VITE_SHOP_NAME` — the shop's display name, shown on the login screen and the app's top nav bar (falls back to "Uniform Shop" if unset). Updated the Cloudflare build-variables step and README to include it alongside the Supabase env vars.
 - **v0.8:** Phase 1 and Phase 2 complete: the keep-alive workflow is confirmed running (repo variables added, manual run succeeded), and the migrations are pushed to the real Supabase project with the first Admin login provisioned. Next up is Phase 3 — the core screens, starting with item management and bulk initial stock entry.
 - **v0.7:** Checked off Phase 1 steps 4-5 (Cloudflare Pages connected and build variables set, confirmed working end-to-end). Added the keep-alive GitHub Actions workflow (`.github/workflows/supabase-keep-alive.yml`) for step 6, plus the one-off repo-variable setup it needs.

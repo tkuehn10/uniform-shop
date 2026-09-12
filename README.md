@@ -93,4 +93,4 @@ src/
 
 ## Status
 
-Item management, sales, orders, stocktake, reports, and roster screens are stubbed but not yet built — see Phase 3 of `docs/implementation-roadmap.md` for build order. The Stock screen (`src/pages/StockPage.tsx`) is wired up end-to-end (auth → RLS → Postgres → UI) as a working reference for building the rest.
+All of Phase 3 is built: item management + bulk initial stock entry, stock overview + record-a-sale, supplier orders + delivery check-in, full/spot stocktake, sales reports + CSV export, and roster + opening-times + school holidays. See `docs/implementation-roadmap.md` Phase 4 for what's left before real use (a manual test pass, real staff logins, real initial stock entry, and real opening-times/holiday setup).
