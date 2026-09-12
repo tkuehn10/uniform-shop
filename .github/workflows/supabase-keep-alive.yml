@@ -1,0 +1,57 @@
+name: Supabase keep-alive ping
+
+# Supabase's free plan auto-pauses a project after 7 days with no database
+# activity (docs/implementation-roadmap.md Phase 1 step 6, ADR-001
+# Consequences). This runs a trivial read against the database once a day
+# so it never goes quiet for long enough to pause — the request itself is
+# what counts, not what it returns.
+#
+# One-time setup (see docs/implementation-roadmap.md Phase 1 step 6):
+# add SUPABASE_URL and SUPABASE_ANON_KEY as repository *variables* (not
+# secrets — they're the same public anon/publishable key already used in
+# Cloudflare Pages) under Settings -> Secrets and variables -> Actions ->
+# Variables tab.
+
+on:
+  schedule:
+    # Once a day. GitHub schedules the run near this time but can delay it
+    # by anywhere from a few minutes to a couple of hours under load --
+    # that's fine here, the requirement is "at least once every 7 days",
+    # not a precise time.
+    - cron: '17 3 * * *'
+  workflow_dispatch: # lets you trigger a run by hand from the Actions tab to test it
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping the Supabase REST API
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${SUPABASE_URL:-}" ] || [ -z "${SUPABASE_ANON_KEY:-}" ]; then
+            echo "::error::SUPABASE_URL / SUPABASE_ANON_KEY repository variables are not set. See docs/implementation-roadmap.md Phase 1 step 6 for setup."
+            exit 1
+          fi
+
+          http_status=$(curl -s -o /tmp/response.json -w '%{http_code}' \
+            "${SUPABASE_URL}/rest/v1/items?select=id&limit=1" \
+            -H "apikey: ${SUPABASE_ANON_KEY}")
+
+          echo "Supabase REST API responded with HTTP ${http_status}"
+          cat /tmp/response.json
+
+          # RLS restricts every table to the `authenticated` role (see
+          # supabase/migrations/20260912000001_rls_policies.sql), so an
+          # anon-key request like this always comes back as an empty array
+          # -- that's expected, and the request still reaches Postgres,
+          # which is what resets the inactivity clock. Only fail loudly on
+          # something that suggests the project itself is unreachable or
+          # misconfigured (wrong URL/key, migrations not pushed yet, etc).
+          if [ "$http_status" -ne 200 ]; then
+            echo "::error::Unexpected response (HTTP ${http_status}) -- check SUPABASE_URL/SUPABASE_ANON_KEY are correct and that migrations have been pushed to the real project."
+            exit 1
+          fi

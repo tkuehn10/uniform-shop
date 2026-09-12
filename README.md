@@ -72,7 +72,7 @@ Planning docs (requirements, architecture decisions, database schema, screen spe
 
 Connect this repository to a Cloudflare Pages project (build command `npm run build`, output directory `dist`). Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as environment variables in the Pages project settings — every push to `main` then deploys automatically.
 
-The Supabase project's free tier pauses after 7 days with no activity — set up a scheduled GitHub Actions workflow that pings it daily (see `docs/implementation-roadmap.md` Phase 1) to prevent this.
+The Supabase project's free tier pauses after 7 days with no activity — `.github/workflows/supabase-keep-alive.yml` pings it daily to prevent this. It needs `SUPABASE_URL` and `SUPABASE_ANON_KEY` set as repository **variables** (Settings → Secrets and variables → Actions → Variables) before it will run successfully; see `docs/implementation-roadmap.md` Phase 1 step 6.
 
 ## Project structure
 
