@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { downloadCsv, toCsv } from '../lib/csv';
+import { addDaysIso, todayIsoDate } from '../lib/dates';
 
 // REQ-19, REQ-20, REQ-21, REQ-22 (screens-and-flows.md 2.14): units sold per
 // item/size over a period, a date-range picker with quick presets, viewed
@@ -19,20 +20,10 @@ interface JoinedRow {
   item_sizes: { size_label: string; items: { name: string } | null } | null;
 }
 
-function isoDate(d: Date): string {
-  return d.toISOString().slice(0, 10);
-}
-
-function addDaysIso(dateStr: string, days: number): string {
-  const d = new Date(dateStr + 'T00:00:00');
-  d.setDate(d.getDate() + days);
-  return isoDate(d);
-}
-
 type Preset = 'today' | 'month' | 'year' | 'custom';
 
 export function ReportsPage() {
-  const today = isoDate(new Date());
+  const today = todayIsoDate();
   const monthStart = today.slice(0, 7) + '-01';
   const yearStart = today.slice(0, 4) + '-01-01';
 

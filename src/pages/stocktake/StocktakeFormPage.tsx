@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../auth/AuthContext';
+import { todayIsoDate } from '../../lib/dates';
 import type { StocktakeScope } from '../../lib/database.types';
 
 // REQ-15, REQ-16, REQ-17 (screens-and-flows.md 2.12): choose date and scope
@@ -27,7 +28,7 @@ interface JoinedRow {
 export function StocktakeFormPage() {
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(todayIsoDate);
   const [scope, setScope] = useState<StocktakeScope>('full');
   const [catalog, setCatalog] = useState<CatalogRow[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());

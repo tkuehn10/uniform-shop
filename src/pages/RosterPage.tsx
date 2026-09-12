@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../auth/AuthContext';
 import type { OpeningTimeSlot, RosterClaim, SchoolHoliday } from '../lib/database.types';
+import { isoDate } from '../lib/dates';
 
 // REQ-26, REQ-27, REQ-28, REQ-31 (screens-and-flows.md 2.15): a calendar of
 // upcoming opening-time slots. Open slots show a "claim" action; claimed
@@ -10,10 +11,6 @@ import type { OpeningTimeSlot, RosterClaim, SchoolHoliday } from '../lib/databas
 
 const WEEKS_AHEAD = 6;
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-function isoDate(d: Date): string {
-  return d.toISOString().slice(0, 10);
-}
 
 interface DayEntry {
   date: string;

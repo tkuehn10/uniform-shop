@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../auth/AuthContext';
 import { ORDER_STATUS_LABELS, ORDER_STATUS_SEQUENCE } from '../../lib/orderStatus';
+import { todayIsoDate } from '../../lib/dates';
 import type { OrderStatus } from '../../lib/database.types';
 
 // The hub for managing one order through its lifecycle (screens-and-flows.md
@@ -47,7 +48,7 @@ export function OrderDetailPage() {
   const [busy, setBusy] = useState(false);
 
   const [checkingIn, setCheckingIn] = useState(false);
-  const [deliveryDate, setDeliveryDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [deliveryDate, setDeliveryDate] = useState(todayIsoDate);
   const [receivedQuantities, setReceivedQuantities] = useState<Record<string, string>>({});
 
   const [invoiceNote, setInvoiceNote] = useState('');
@@ -246,7 +247,7 @@ export function OrderDetailPage() {
       .from('orders')
       .update({
         status: 'invoice_sent_to_treasurer',
-        invoice_sent_date: new Date().toISOString().slice(0, 10)
+        invoice_sent_date: todayIsoDate()
       })
       .eq('id', id);
     setBusy(false);

@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
+import { todayIsoDate } from '../../lib/dates';
 
 // REQ-3, REQ-4 (screens-and-flows.md 2.7): start a new supplier order --
 // supplier name with autocomplete from previously used suppliers (or a new
@@ -29,7 +30,7 @@ export function OrderFormPage() {
   const [supplierName, setSupplierName] = useState('');
   const [supplierOptions, setSupplierOptions] = useState<string[]>([]);
   const [orderNumber, setOrderNumber] = useState('');
-  const [orderDate, setOrderDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [orderDate, setOrderDate] = useState(todayIsoDate);
   const [sizeOptions, setSizeOptions] = useState<SizeOption[]>([]);
   const [lines, setLines] = useState<LineDraft[]>([{ item_size_id: '', quantity: '' }]);
   const [saving, setSaving] = useState(false);
