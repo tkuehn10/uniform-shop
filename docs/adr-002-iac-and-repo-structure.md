@@ -66,3 +66,9 @@ Full Terraform's main benefit — disaster-recovery-grade reproducibility and cl
 3. [ ] Set up `supabase/migrations/` and treat "migration file, never a hand-edited change" as a hard rule for all schema changes
 4. [ ] Connect the chosen frontend host directly to the repository for git-based auto-deploy
 5. [ ] Write the one-off manual setup runbook step for creating the Supabase project and wiring its keys into the hosting provider's environment variables and GitHub Actions secrets
+
+## Amendments
+
+### Amendment 1 (12 September 2026): No `wrangler.toml` needed for Cloudflare Pages
+
+The Decision section above anticipated a frontend host config file (e.g. `wrangler.toml`) living in the repo alongside the Supabase config. In practice, connecting a repo to Cloudflare Pages through its dashboard git integration (Workers & Pages → Create application → Pages → Connect to Git) configures the build command, output directory, and environment variables entirely through dashboard settings tied to the Pages project — no config file is created or required in the repo for this to work. This is actually a slightly better fit for this ADR's "no separate deploy step or tool" goal than a checked-in config file would have been. See `implementation-roadmap.md` Phase 1 steps 4–5 for the concrete setup steps.
