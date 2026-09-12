@@ -10,8 +10,6 @@ import { isoDate } from '../lib/dates';
 // holiday period are visually marked as closed and not claimable (REQ-32).
 
 const WEEKS_AHEAD = 6;
-const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
 interface DayEntry {
   date: string;
   holidayLabel: string | null;
@@ -159,7 +157,11 @@ export function RosterPage() {
 
       {days.map(day => {
         const date = new Date(day.date + 'T00:00:00');
-        const label = `${DAY_NAMES[date.getDay()]} ${day.date}`;
+        const label = date.toLocaleDateString(undefined, {
+          weekday: 'long',
+          month: 'long',
+          day: 'numeric'
+        });
         return (
           <div className='form-card' key={day.date}>
             <h2 style={{ marginTop: 0 }}>{label}</h2>
