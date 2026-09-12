@@ -4,6 +4,10 @@ import { PlaceholderPage } from './components/PlaceholderPage';
 import { RequireAdmin, RequireAuth } from './components/RequireAuth';
 import { LoginPage } from './pages/LoginPage';
 import { StockPage } from './pages/StockPage';
+import { SettingsPage } from './pages/settings/SettingsPage';
+import { ItemsPage } from './pages/settings/ItemsPage';
+import { ItemFormPage } from './pages/settings/ItemFormPage';
+import { BulkStockEntryPage } from './pages/settings/BulkStockEntryPage';
 
 function App() {
   return (
@@ -48,10 +52,22 @@ function App() {
           path='/settings'
           element={
             <RequireAdmin>
-              <PlaceholderPage title='Settings' screenRef='sections 2.3, 2.4, 2.4a, 2.16, 2.17' />
+              <SettingsPage />
             </RequireAdmin>
-          }
-        />
+          }>
+          <Route path='items' element={<ItemsPage />} />
+          <Route path='items/new' element={<ItemFormPage />} />
+          <Route path='items/:id' element={<ItemFormPage />} />
+          <Route path='bulk-stock' element={<BulkStockEntryPage />} />
+          <Route
+            path='opening-times'
+            element={<PlaceholderPage title='Opening times' screenRef='section 2.16' />}
+          />
+          <Route
+            path='holidays'
+            element={<PlaceholderPage title='School holidays' screenRef='section 2.17' />}
+          />
+        </Route>
       </Route>
 
       <Route path='*' element={<Navigate to='/' replace />} />

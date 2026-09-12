@@ -18,14 +18,14 @@ export type StocktakeScope = 'full' | 'spot';
 export type StockMovementReason =
   'delivery' | 'sale' | 'stocktake_adjustment' | 'manual_adjustment';
 
-export interface Profile {
+export type Profile = {
   id: string;
   display_name: string;
   role: UserRole;
   created_at: string;
-}
+};
 
-export interface Item {
+export type Item = {
   id: string;
   name: string;
   category: string | null;
@@ -33,17 +33,17 @@ export interface Item {
   active: boolean;
   created_at: string;
   updated_at: string;
-}
+};
 
-export interface ItemPhoto {
+export type ItemPhoto = {
   item_id: string;
   image_data: string; // bytea comes back as a hex-encoded string over PostgREST
   content_type: string;
   byte_size: number;
   updated_at: string;
-}
+};
 
-export interface ItemSize {
+export type ItemSize = {
   id: string;
   item_id: string;
   size_label: string;
@@ -51,9 +51,9 @@ export interface ItemSize {
   quantity_on_hand: number;
   active: boolean;
   created_at: string;
-}
+};
 
-export interface StockMovement {
+export type StockMovement = {
   id: string;
   item_size_id: string;
   quantity_delta: number;
@@ -63,15 +63,15 @@ export interface StockMovement {
   note: string | null;
   created_by: string | null;
   created_at: string;
-}
+};
 
-export interface Supplier {
+export type Supplier = {
   id: string;
   name: string;
   created_at: string;
-}
+};
 
-export interface Order {
+export type Order = {
   id: string;
   order_number: string;
   supplier_id: string;
@@ -82,133 +82,183 @@ export interface Order {
   created_by: string | null;
   created_at: string;
   updated_at: string;
-}
+};
 
-export interface OrderLine {
+export type OrderLine = {
   id: string;
   order_id: string;
   item_size_id: string;
   quantity_ordered: number;
-}
+};
 
-export interface Delivery {
+export type Delivery = {
   id: string;
   order_id: string;
   delivery_date: string;
   received_by: string | null;
   created_at: string;
-}
+};
 
-export interface DeliveryLine {
+export type DeliveryLine = {
   id: string;
   delivery_id: string;
   order_line_id: string;
   quantity_received: number;
-}
+};
 
-export interface Stocktake {
+export type Stocktake = {
   id: string;
   stocktake_date: string;
   scope: StocktakeScope;
   created_by: string | null;
   created_at: string;
-}
+};
 
-export interface StocktakeCount {
+export type StocktakeCount = {
   id: string;
   stocktake_id: string;
   item_size_id: string;
   expected_quantity: number;
   counted_quantity: number;
   calculated_sold: number;
-}
+};
 
-export interface Sale {
+export type Sale = {
   id: string;
   sold_at: string;
   created_by: string | null;
   created_at: string;
-}
+};
 
-export interface SaleLine {
+export type SaleLine = {
   id: string;
   sale_id: string;
   item_size_id: string;
   quantity: number;
-}
+};
 
-export interface OpeningTimeSlot {
+export type OpeningTimeSlot = {
   id: string;
   day_of_week: number;
   start_time: string;
   end_time: string;
   active: boolean;
   created_at: string;
-}
+};
 
-export interface RosterClaim {
+export type RosterClaim = {
   id: string;
   opening_time_slot_id: string;
   occurrence_date: string;
   claimed_name: string;
   claimed_by: string | null;
   claimed_at: string;
-}
+};
 
-export interface SchoolHoliday {
+export type SchoolHoliday = {
   id: string;
   start_date: string;
   end_date: string;
   label: string | null;
   created_at: string;
-}
+};
 
 // Minimal shape so `createClient<Database>()` type-checks; not a full
 // generated Database type. See the note at the top of this file.
 export interface Database {
   public: {
     Tables: {
-      profiles: { Row: Profile; Insert: Partial<Profile>; Update: Partial<Profile> };
-      items: { Row: Item; Insert: Partial<Item>; Update: Partial<Item> };
-      item_photos: { Row: ItemPhoto; Insert: Partial<ItemPhoto>; Update: Partial<ItemPhoto> };
-      item_sizes: { Row: ItemSize; Insert: Partial<ItemSize>; Update: Partial<ItemSize> };
+      profiles: {
+        Row: Profile;
+        Insert: Partial<Profile>;
+        Update: Partial<Profile>;
+        Relationships: [];
+      };
+      items: { Row: Item; Insert: Partial<Item>; Update: Partial<Item>; Relationships: [] };
+      item_photos: {
+        Row: ItemPhoto;
+        Insert: Partial<ItemPhoto>;
+        Update: Partial<ItemPhoto>;
+        Relationships: [];
+      };
+      item_sizes: {
+        Row: ItemSize;
+        Insert: Partial<ItemSize>;
+        Update: Partial<ItemSize>;
+        Relationships: [];
+      };
       stock_movements: {
         Row: StockMovement;
         Insert: Partial<StockMovement>;
         Update: Partial<StockMovement>;
+        Relationships: [];
       };
-      suppliers: { Row: Supplier; Insert: Partial<Supplier>; Update: Partial<Supplier> };
-      orders: { Row: Order; Insert: Partial<Order>; Update: Partial<Order> };
-      order_lines: { Row: OrderLine; Insert: Partial<OrderLine>; Update: Partial<OrderLine> };
-      deliveries: { Row: Delivery; Insert: Partial<Delivery>; Update: Partial<Delivery> };
+      suppliers: {
+        Row: Supplier;
+        Insert: Partial<Supplier>;
+        Update: Partial<Supplier>;
+        Relationships: [];
+      };
+      orders: { Row: Order; Insert: Partial<Order>; Update: Partial<Order>; Relationships: [] };
+      order_lines: {
+        Row: OrderLine;
+        Insert: Partial<OrderLine>;
+        Update: Partial<OrderLine>;
+        Relationships: [];
+      };
+      deliveries: {
+        Row: Delivery;
+        Insert: Partial<Delivery>;
+        Update: Partial<Delivery>;
+        Relationships: [];
+      };
       delivery_lines: {
         Row: DeliveryLine;
         Insert: Partial<DeliveryLine>;
         Update: Partial<DeliveryLine>;
+        Relationships: [];
       };
-      stocktakes: { Row: Stocktake; Insert: Partial<Stocktake>; Update: Partial<Stocktake> };
+      stocktakes: {
+        Row: Stocktake;
+        Insert: Partial<Stocktake>;
+        Update: Partial<Stocktake>;
+        Relationships: [];
+      };
       stocktake_counts: {
         Row: StocktakeCount;
         Insert: Partial<StocktakeCount>;
         Update: Partial<StocktakeCount>;
+        Relationships: [];
       };
-      sales: { Row: Sale; Insert: Partial<Sale>; Update: Partial<Sale> };
-      sale_lines: { Row: SaleLine; Insert: Partial<SaleLine>; Update: Partial<SaleLine> };
+      sales: { Row: Sale; Insert: Partial<Sale>; Update: Partial<Sale>; Relationships: [] };
+      sale_lines: {
+        Row: SaleLine;
+        Insert: Partial<SaleLine>;
+        Update: Partial<SaleLine>;
+        Relationships: [];
+      };
       opening_time_slots: {
         Row: OpeningTimeSlot;
         Insert: Partial<OpeningTimeSlot>;
         Update: Partial<OpeningTimeSlot>;
+        Relationships: [];
       };
       roster_claims: {
         Row: RosterClaim;
         Insert: Partial<RosterClaim>;
         Update: Partial<RosterClaim>;
+        Relationships: [];
       };
       school_holidays: {
         Row: SchoolHoliday;
         Insert: Partial<SchoolHoliday>;
         Update: Partial<SchoolHoliday>;
+        Relationships: [];
       };
     };
+    Views: {};
+    Functions: {};
+    Enums: {};
+    CompositeTypes: {};
   };
 }
