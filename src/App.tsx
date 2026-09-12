@@ -4,6 +4,7 @@ import { PlaceholderPage } from './components/PlaceholderPage';
 import { RequireAdmin, RequireAuth } from './components/RequireAuth';
 import { LoginPage } from './pages/LoginPage';
 import { StockPage } from './pages/StockPage';
+import { SalesPage } from './pages/SalesPage';
 import { SettingsPage } from './pages/settings/SettingsPage';
 import { ItemsPage } from './pages/settings/ItemsPage';
 import { ItemFormPage } from './pages/settings/ItemFormPage';
@@ -22,7 +23,7 @@ function App() {
         }>
         <Route index element={<Navigate to='/stock' replace />} />
         <Route path='/stock' element={<StockPage />} />
-        <Route path='/sales' element={<PlaceholderPage title='Sales' screenRef='section 2.5' />} />
+        <Route path='/sales' element={<SalesPage />} />
         <Route
           path='/reports'
           element={<PlaceholderPage title='Reports' screenRef='section 2.14' />}
