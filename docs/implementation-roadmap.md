@@ -1,6 +1,6 @@
 # Implementation Roadmap — Uniform Shop Stock System
 
-**Version:** 0.5
+**Version:** 0.6
 **Date:** 12 September 2026
 **Repository:** https://github.com/tkuehn10/uniform-shop
 
@@ -37,12 +37,12 @@ A single ordered checklist pulling together the decisions and action items scatt
    - No `wrangler.toml` or CLI install is needed for this step — Pages' git integration builds and deploys entirely from these dashboard settings, matching ADR-002's "no separate deploy step or tool" (see ADR-002 Amendment 1).
    - Every push to `main` triggers a production deploy automatically; pull requests automatically get their own preview-deployment URL too.
    - The project gets a free `<project-name>.pages.dev` URL immediately after the first deploy; a custom domain can be added later under Settings → Custom domains if wanted.
-5. [ ] Add the Supabase URL and anon/publishable key as environment variables in the Cloudflare Pages project settings:
-   - In the Pages project, go to **Settings → Environment variables**.
-   - Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` for both the **Production** and **Preview** environments (same values for both — there's only one Supabase project).
+5. [ ] Add the Supabase URL and anon/publishable key as **build-time** variables in the Cloudflare project settings:
+   - Cloudflare's current dashboard splits this into two separate sections that look similar but aren't: **Settings → Variables & Secrets** (runtime — only usable by actual Worker/Functions code) and **Settings → Build → Build variables and secrets** (build-time — used while `npm run build` runs). This project is static-assets-only (no server-side Worker code), so the runtime section will refuse with "Variables cannot be added to a Worker that only has static assets" — that's expected; use the **Build** section instead.
+   - In **Settings → Build → Build variables and secrets**, add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` for both the **Production** and **Preview** environments (same values for both — there's only one Supabase project).
    - Add both as the plaintext **Variable** type, not **Secret**. Cloudflare exposes both types at build time equally, but the anon/publishable key is designed to be public and ends up readable in the deployed JS bundle regardless — marking it Secret only makes it write-only in the dashboard (you can't view it again later) without hiding anything real. Reserve Secret for values that must never appear in the shipped frontend, like the `service_role` key (which doesn't go here at all — see step 2).
    - `VITE_SUPABASE_URL` must be the bare project URL, `https://<project-ref>.supabase.co` — no path suffix like `/rest/v1/`; the Supabase client library appends that itself.
-   - Adding or changing environment variables doesn't redeploy the site automatically — trigger a new deploy afterwards (push a commit, or use **Deployments → Retry deployment**).
+   - Adding or changing build variables doesn't redeploy the site automatically — trigger a new deploy afterwards (push a commit, or use **Deployments → Retry deployment**).
 6. [ ] Set up the scheduled keep-alive ping (a GitHub Actions cron job hitting the Supabase project once a day) to prevent the free-tier pause after 7 days idle
 
 ## Phase 2 — Database
@@ -72,6 +72,7 @@ Roughly the order a real shop would start using the system, so each piece is tes
 
 ## Change log
 
+- **v0.6:** Corrected step 5: Cloudflare's current dashboard requires build-time variables to be set under Settings → Build → Build variables and secrets, not the runtime Settings → Variables & Secrets section (which now refuses on a static-assets-only project with "Variables cannot be added to a Worker that only has static assets").
 - **v0.5:** Expanded Phase 1 steps 4 and 5 with concrete Cloudflare Pages setup instructions: connecting the repo via the dashboard's git integration (no wrangler.toml or CLI needed), the Vite build settings, and adding the Supabase URL/key as environment variables for both Production and Preview. Cross-referenced from a new ADR-002 amendment.
 - **v0.4:** Delivered the app scaffold and database migrations as code — `uniform-shop-scaffold.zip` (Vite + React PWA, auth context, role-gated routing, a working Stock screen) and two SQL migrations (schema + triggers, RLS policies), both verified against a local Postgres instance before delivery. Remaining Phase 1/2 items are pushing to the real Supabase project and Cloudflare Pages setup.
 - **v0.3:** Expanded the Supabase project creation step with concrete setup guidance: skip the paid GitHub branch-sync integration, pick a nearby region (locked in permanently), confirm the Free plan, save the DB password, disable public sign-ups, note down the API keys, and link the CLI to the project.
