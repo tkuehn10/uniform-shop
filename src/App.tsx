@@ -1,6 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout';
-import { PlaceholderPage } from './components/PlaceholderPage';
 import { RequireAdmin, RequireAuth } from './components/RequireAuth';
 import { LoginPage } from './pages/LoginPage';
 import { StockPage } from './pages/StockPage';
@@ -13,6 +12,9 @@ import { StocktakesPage } from './pages/stocktake/StocktakesPage';
 import { StocktakeFormPage } from './pages/stocktake/StocktakeFormPage';
 import { StocktakeDetailPage } from './pages/stocktake/StocktakeDetailPage';
 import { ReportsPage } from './pages/ReportsPage';
+import { RosterPage } from './pages/RosterPage';
+import { OpeningTimesPage } from './pages/settings/OpeningTimesPage';
+import { SchoolHolidaysPage } from './pages/settings/SchoolHolidaysPage';
 import { SettingsPage } from './pages/settings/SettingsPage';
 import { ItemsPage } from './pages/settings/ItemsPage';
 import { ItemFormPage } from './pages/settings/ItemFormPage';
@@ -33,10 +35,7 @@ function App() {
         <Route path='/stock' element={<StockPage />} />
         <Route path='/sales' element={<SalesPage />} />
         <Route path='/reports' element={<ReportsPage />} />
-        <Route
-          path='/roster'
-          element={<PlaceholderPage title='Roster' screenRef='sections 2.15-2.17' />}
-        />
+        <Route path='/roster' element={<RosterPage />} />
 
         <Route
           path='/orders'
@@ -105,14 +104,8 @@ function App() {
           <Route path='items/new' element={<ItemFormPage />} />
           <Route path='items/:id' element={<ItemFormPage />} />
           <Route path='bulk-stock' element={<BulkStockEntryPage />} />
-          <Route
-            path='opening-times'
-            element={<PlaceholderPage title='Opening times' screenRef='section 2.16' />}
-          />
-          <Route
-            path='holidays'
-            element={<PlaceholderPage title='School holidays' screenRef='section 2.17' />}
-          />
+          <Route path='opening-times' element={<OpeningTimesPage />} />
+          <Route path='holidays' element={<SchoolHolidaysPage />} />
         </Route>
       </Route>
 
