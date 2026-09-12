@@ -33,10 +33,7 @@ export function LoginPage() {
     <div className='centered-page'>
       <form className='card' onSubmit={handleSubmit}>
         <h1>Uniform Shop Stock</h1>
-        <p className='muted'>
-          There's no self sign-up — ask an Admin to create your login (see docs/screens-and-flows.md
-          section 4).
-        </p>
+        <p className='muted'>Ask an Admin to create your login.</p>
         <label>
           Email
           <input
