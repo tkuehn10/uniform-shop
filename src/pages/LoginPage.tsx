@@ -1,12 +1,24 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 
 export function LoginPage() {
-  const { signInWithPassword } = useAuth()
+  const { signInWithPassword, session } = useAuth()
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+
+  // Once sign-in succeeds, AuthContext's session state updates asynchronously
+  // (via supabase.auth.onAuthStateChange) — nothing else on this page redirects
+  // away from /login, so without this the form just sits there looking like
+  // nothing happened even though auth actually succeeded.
+  useEffect(() => {
+    if (session) {
+      navigate('/stock', { replace: true })
+    }
+  }, [session, navigate])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
