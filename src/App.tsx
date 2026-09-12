@@ -12,6 +12,7 @@ import { DeliveriesPage } from './pages/orders/DeliveriesPage';
 import { StocktakesPage } from './pages/stocktake/StocktakesPage';
 import { StocktakeFormPage } from './pages/stocktake/StocktakeFormPage';
 import { StocktakeDetailPage } from './pages/stocktake/StocktakeDetailPage';
+import { ReportsPage } from './pages/ReportsPage';
 import { SettingsPage } from './pages/settings/SettingsPage';
 import { ItemsPage } from './pages/settings/ItemsPage';
 import { ItemFormPage } from './pages/settings/ItemFormPage';
@@ -31,10 +32,7 @@ function App() {
         <Route index element={<Navigate to='/stock' replace />} />
         <Route path='/stock' element={<StockPage />} />
         <Route path='/sales' element={<SalesPage />} />
-        <Route
-          path='/reports'
-          element={<PlaceholderPage title='Reports' screenRef='section 2.14' />}
-        />
+        <Route path='/reports' element={<ReportsPage />} />
         <Route
           path='/roster'
           element={<PlaceholderPage title='Roster' screenRef='sections 2.15-2.17' />}
