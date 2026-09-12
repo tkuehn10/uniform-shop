@@ -451,3 +451,33 @@ textarea {
 .cart-line input[type='number'] {
   width: 4.5rem;
 }
+
+/* ---- Sales screen: photos, price, and cart total ---- */
+
+.item-photo.small {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.suggestion-list li button {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.suggestion-text {
+  flex: 1;
+}
+
+.cart-line-subtotal {
+  min-width: 4rem;
+  text-align: right;
+  font-weight: 600;
+}
+
+.cart-total {
+  align-self: flex-end;
+  font-size: 1.05rem;
+  padding-top: 0.25rem;
+}
