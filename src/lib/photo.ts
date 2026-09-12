@@ -1,10 +1,17 @@
 // Client-side photo compression + bytea encoding for item_photos (REQ-1, REQ-2).
 // Photos live in Postgres as bytea rather than a separate storage service
 // (ADR-001 Amendment 1), so every upload is resized/compressed here before
-// it's ever sent to Supabase -- there's no server-side processing step.
+// it's ever sent to Supabase -- there's no server-side processing step, and
+// no raw/uncompressed original is ever stored.
 
-const MAX_DIMENSION = 400;
-const MAX_BYTES = 100 * 1024;
+// Tried largest-first: full quality ladder at 400px, then again at 320/240/160
+// if nothing fit under MAX_BYTES yet. Keeps photos as sharp as possible while
+// still landing under the cap for the vast majority of ordinary product
+// photos; only a very busy/detailed source image would ever bottom out at
+// the smallest size and quality tried.
+const DIMENSION_STEPS = [400, 320, 240, 160];
+const QUALITY_STEPS = [0.85, 0.7, 0.55, 0.4, 0.25];
+const MAX_BYTES = 50 * 1024;
 
 export interface CompressedPhoto {
   bytesHex: string; // Postgres bytea hex-format text literal, e.g. "\x89504e47..."
@@ -43,12 +50,13 @@ async function loadImage(file: File): Promise<HTMLImageElement> {
   }
 }
 
-// Resizes to at most MAX_DIMENSION on the long edge and encodes as webp,
-// stepping quality down until it fits under MAX_BYTES (best-effort -- an
-// already-small/simple image may just come in well under the cap).
-export async function compressImageFile(file: File): Promise<CompressedPhoto> {
-  const img = await loadImage(file);
-  const scale = Math.min(1, MAX_DIMENSION / Math.max(img.width, img.height));
+function encodeAt(
+  img: HTMLImageElement,
+  dimension: number,
+  contentType: string,
+  quality: number
+): Promise<Blob | null> {
+  const scale = Math.min(1, dimension / Math.max(img.width, img.height));
   const width = Math.max(1, Math.round(img.width * scale));
   const height = Math.max(1, Math.round(img.height * scale));
 
@@ -59,17 +67,33 @@ export async function compressImageFile(file: File): Promise<CompressedPhoto> {
   if (!ctx) throw new Error('Canvas 2D context unavailable');
   ctx.drawImage(img, 0, 0, width, height);
 
-  const contentType = 'image/webp';
-  let quality = 0.85;
-  let blob: Blob | null = null;
-  for (let attempt = 0; attempt < 5; attempt++) {
-    blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, contentType, quality));
-    if (!blob || blob.size <= MAX_BYTES) break;
-    quality -= 0.15;
-  }
-  if (!blob) throw new Error('Failed to encode image');
+  return new Promise<Blob | null>(resolve => canvas.toBlob(resolve, contentType, quality));
+}
 
-  const buffer = await blob.arrayBuffer();
+// Resizes to at most 400px on the long edge and encodes as webp, stepping
+// quality down through QUALITY_STEPS until the result fits under MAX_BYTES
+// (50KB). If even the lowest quality at 400px doesn't fit, steps the
+// dimension down through DIMENSION_STEPS and tries the quality ladder again
+// at each size. Best-effort: an unusually busy/detailed image may still come
+// in as the smallest result found (160px, lowest quality) without actually
+// reaching the cap.
+export async function compressImageFile(file: File): Promise<CompressedPhoto> {
+  const img = await loadImage(file);
+  const contentType = 'image/webp';
+
+  let smallest: Blob | null = null;
+
+  outer: for (const dimension of DIMENSION_STEPS) {
+    for (const quality of QUALITY_STEPS) {
+      const blob = await encodeAt(img, dimension, contentType, quality);
+      if (!blob) continue;
+      if (!smallest || blob.size < smallest.size) smallest = blob;
+      if (blob.size <= MAX_BYTES) break outer;
+    }
+  }
+  if (!smallest) throw new Error('Failed to encode image');
+
+  const buffer = await smallest.arrayBuffer();
   const bytes = new Uint8Array(buffer);
   return {
     bytesHex: '\\x' + bytesToHex(bytes),

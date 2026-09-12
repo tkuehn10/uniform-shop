@@ -1,6 +1,6 @@
 # Database Schema — Uniform Shop Stock System
 
-**Version:** 0.6 (draft)
+**Version:** 0.7 (draft)
 **Date:** 12 September 2026
 **Target platform:** Postgres via Supabase (see `adr-001-backend-hosting.md`)
 
@@ -8,7 +8,7 @@ This document turns the conceptual data model in `requirements.md` (section 4) i
 
 ## 1. Design notes
 
-- **Item photos live in Postgres, not a separate file-storage service.** Per ADR-001's amendment, photos are compressed/resized client-side (roughly 400px on the long edge, capped around 100KB) and stored as `bytea` blobs in their own `item_photos` table — kept separate from `items` so that browsing/searching the item catalog never has to read image bytes. This keeps the system to one backend service instead of two, at the cost of a somewhat larger database as photos are added (acceptable at this catalog size — see ADR-001 Amendment 1).
+- **Item photos live in Postgres, not a separate file-storage service.** Per ADR-001's amendment, photos are compressed/resized client-side (roughly 400px on the long edge, stepping down to 320/240/160px and through a quality ladder if needed) and stored as `bytea` blobs in their own `item_photos` table, capped at 50KB — kept separate from `items` so that browsing/searching the item catalog never has to read image bytes. This keeps the system to one backend service instead of two, at the cost of a somewhat larger database as photos are added (acceptable at this catalog size — see ADR-001 Amendment 1).
 - **Stock is a ledger, not just a counter.** Every event that changes stock (a delivery received, a sale, a stocktake adjustment) is recorded as a row in `stock_movements`. The current on-hand quantity for an item/size is the sum of its movements — kept fast to read via a cached `quantity_on_hand` column on `item_sizes` that's updated whenever a movement is inserted. This gives an audit trail for free (every stock change is traceable to its cause) and makes stocktake reconciliation (REQ-16, REQ-17) and sales reporting (REQ-19–22) straightforward sums/filters over one table instead of recomputing from scratch.
 - **Roles are enforced with Postgres Row-Level Security (RLS)**, not just application code. Each authenticated user has a `profiles` row with a `role` of `admin` or `user`. RLS policies on each table check this role, so even a bug in the frontend can't let a User perform an Admin-only action.
 - **Users are Supabase Auth users** (`auth.users`, managed by Supabase) with a matching `public.profiles` row for app-specific fields (display name, role). This is the standard Supabase pattern.
@@ -79,7 +79,7 @@ create table item_photos (
   item_id uuid primary key references items(id) on delete cascade,
   image_data bytea not null,      -- compressed image bytes, resized to ~400px long edge (REQ-1, ADR-001 Amendment 1)
   content_type text not null,     -- e.g. 'image/webp'
-  byte_size int not null,         -- app-enforced cap (~100KB) checked before insert
+  byte_size int not null,         -- app-enforced cap (~50KB) checked before insert
   updated_at timestamptz not null default now()
 );
 -- One row per item (primary key = item_id); a new upload replaces the row wholesale.
@@ -280,6 +280,7 @@ Every table above has RLS enabled. The general pattern:
 
 ## 6. Change log
 
+- **v0.7:** Lowered the client-side photo compression cap from ~100KB to ~50KB (`src/lib/photo.ts`). The compressor now also steps the resize dimension down through 320/240/160px (in addition to the existing quality ladder) if 400px doesn't fit under the new, tighter cap at any quality level, so ordinary product photos still land under 50KB rather than just settling for the smallest/blurriest result at a fixed size.
 - **v0.6:** Item categories are now mandatory and restricted to a fixed set instead of optional free text: added the `item_category` enum (`Tops`, `Bottoms`, `Hats`, `Socks`) and made `items.category` `not null` — `supabase/migrations/20260912000002_item_categories.sql`. Existing rows with a null or unrecognized category are backfilled to `'Tops'` by that migration rather than failing it.
 - **v0.5:** Resolved all three remaining open questions as decisions: `order_number` is unique per supplier (added as a DB constraint), CSV export is a plain client-side query-and-download, and roster/holiday edits are overwrite-in-place with no audit trail.
 - **v0.4:** Moved item photos out of Supabase Storage and into Postgres — dropped `items.photo_url`, added a dedicated `item_photos` table storing compressed image bytes (`bytea`), per ADR-001 Amendment 1. Reduces the backend to a single service (Postgres + Auth), at the cost of a somewhat larger database as photos are added.
