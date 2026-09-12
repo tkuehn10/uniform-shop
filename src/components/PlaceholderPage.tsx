@@ -5,12 +5,12 @@
 
 export function PlaceholderPage({ title, screenRef }: { title: string; screenRef: string }) {
   return (
-    <div className="page">
+    <div className='page'>
       <h1>{title}</h1>
-      <p className="muted">
+      <p className='muted'>
         Not built yet — see <code>docs/screens-and-flows.md</code> {screenRef} for the spec, and
         Phase 3 of <code>docs/implementation-roadmap.md</code> for build order.
       </p>
     </div>
-  )
+  );
 }

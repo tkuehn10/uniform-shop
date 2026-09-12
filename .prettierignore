@@ -1,0 +1,14 @@
+node_modules
+dist
+dist-ssr
+*.local
+
+# Package manager lockfile — has its own generated format, not Prettier's
+package-lock.json
+
+# Generated / vendored, not source we hand-edit
+public/icons/*.png
+
+# Supabase CLI local state
+supabase/.temp
+supabase/.branches

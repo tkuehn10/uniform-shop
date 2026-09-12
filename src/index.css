@@ -7,7 +7,11 @@
   --color-muted: #64748b;
   --color-primary: #1e40af;
   --color-error: #b91c1c;
-  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
 }
 
 * {

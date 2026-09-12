@@ -17,25 +17,25 @@ This document turns the conceptual data model in `requirements.md` (section 4) i
 
 ## 2. Table summary
 
-| Table | Purpose | Key requirement(s) |
-|---|---|---|
-| `profiles` | App-specific user info + role | Section 3 (roles) |
-| `items` | Uniform products | REQ-1, REQ-2, REQ-36, REQ-37 |
-| `item_photos` | One compressed photo per item, stored in-database | REQ-1, REQ-2 |
-| `item_sizes` | Sizes offered per item, with cached on-hand quantity | REQ-1, A5, REQ-36, REQ-37 |
-| `stock_movements` | Ledger of every stock change | REQ-7, REQ-17, REQ-23, REQ-34, REQ-35 |
-| `suppliers` | Remembered supplier names | REQ-3, REQ-4 |
-| `orders` | Supplier purchase orders | REQ-3, REQ-5, REQ-6 |
-| `order_lines` | Items/sizes/quantities on an order | REQ-3 |
-| `deliveries` | A delivery event against an order | REQ-7, REQ-9 |
-| `delivery_lines` | Quantities received per item/size in a delivery | REQ-7, REQ-8 |
-| `stocktakes` | A stocktake event | REQ-15, REQ-18 |
-| `stocktake_counts` | Counted quantity per item/size in a stocktake | REQ-15, REQ-16, REQ-17 |
-| `sales` | A sale transaction | REQ-23 |
-| `sale_lines` | Items/sizes/quantities in a sale | REQ-23, REQ-24 |
-| `opening_time_slots` | Recurring weekly opening-time pattern | REQ-25, REQ-29 |
-| `roster_claims` | A name claiming a specific date's slot occurrence | REQ-27, REQ-28 |
-| `school_holidays` | Holiday date ranges | REQ-30, REQ-33 |
+| Table                | Purpose                                              | Key requirement(s)                    |
+| -------------------- | ---------------------------------------------------- | ------------------------------------- |
+| `profiles`           | App-specific user info + role                        | Section 3 (roles)                     |
+| `items`              | Uniform products                                     | REQ-1, REQ-2, REQ-36, REQ-37          |
+| `item_photos`        | One compressed photo per item, stored in-database    | REQ-1, REQ-2                          |
+| `item_sizes`         | Sizes offered per item, with cached on-hand quantity | REQ-1, A5, REQ-36, REQ-37             |
+| `stock_movements`    | Ledger of every stock change                         | REQ-7, REQ-17, REQ-23, REQ-34, REQ-35 |
+| `suppliers`          | Remembered supplier names                            | REQ-3, REQ-4                          |
+| `orders`             | Supplier purchase orders                             | REQ-3, REQ-5, REQ-6                   |
+| `order_lines`        | Items/sizes/quantities on an order                   | REQ-3                                 |
+| `deliveries`         | A delivery event against an order                    | REQ-7, REQ-9                          |
+| `delivery_lines`     | Quantities received per item/size in a delivery      | REQ-7, REQ-8                          |
+| `stocktakes`         | A stocktake event                                    | REQ-15, REQ-18                        |
+| `stocktake_counts`   | Counted quantity per item/size in a stocktake        | REQ-15, REQ-16, REQ-17                |
+| `sales`              | A sale transaction                                   | REQ-23                                |
+| `sale_lines`         | Items/sizes/quantities in a sale                     | REQ-23, REQ-24                        |
+| `opening_time_slots` | Recurring weekly opening-time pattern                | REQ-25, REQ-29                        |
+| `roster_claims`      | A name claiming a specific date's slot occurrence    | REQ-27, REQ-28                        |
+| `school_holidays`    | Holiday date ranges                                  | REQ-30, REQ-33                        |
 
 ## 3. Schema (Postgres DDL)
 

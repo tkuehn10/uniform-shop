@@ -28,60 +28,60 @@ This avoids building or paying for a separate native mobile app: the same PWA se
 
 ### Option A: Supabase (Postgres) + PWA on a free static host
 
-| Dimension | Assessment |
-|---|---|
-| Complexity | Low-Medium — managed DB, auth, and storage in one project; still need to write RLS policies for the two roles |
-| Cost | $0 at this scale (free tier: DB, 1GB storage, 50k MAU, generous bandwidth) |
-| Scalability | Far beyond what a single small shop needs |
-| Team familiarity | Assumed low but SQL + a mainstream frontend framework is a common, well-documented stack |
+| Dimension        | Assessment                                                                                                    |
+| ---------------- | ------------------------------------------------------------------------------------------------------------- |
+| Complexity       | Low-Medium — managed DB, auth, and storage in one project; still need to write RLS policies for the two roles |
+| Cost             | $0 at this scale (free tier: DB, 1GB storage, 50k MAU, generous bandwidth)                                    |
+| Scalability      | Far beyond what a single small shop needs                                                                     |
+| Team familiarity | Assumed low but SQL + a mainstream frontend framework is a common, well-documented stack                      |
 
 **Pros:** Real relational Postgres database — natural fit for orders/line items/deliveries/stocktake reconciliation/date-range reporting; built-in Auth with Row-Level Security to enforce the Admin/User split; built-in file Storage for item photos; single vendor for DB+auth+storage means less integration work.
 **Cons:** Free project auto-pauses after 7 days of no activity (recoverable for up to a year; mitigated with a scheduled ping); some vendor lock-in to Supabase's specific Postgres extensions/Auth APIs if migrating away later.
 
 ### Option B: Firebase (Firestore) + Firebase Hosting
 
-| Dimension | Assessment |
-|---|---|
-| Complexity | Low to start, higher for reporting logic |
-| Cost | $0 for Auth/Firestore/Hosting at this scale, but file storage and any backend functions require upgrading to the pay-as-you-go Blaze plan |
-| Scalability | Far beyond what's needed |
-| Team familiarity | Assumed low; Firestore's NoSQL model is a different mental model from SQL |
+| Dimension        | Assessment                                                                                                                                |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Complexity       | Low to start, higher for reporting logic                                                                                                  |
+| Cost             | $0 for Auth/Firestore/Hosting at this scale, but file storage and any backend functions require upgrading to the pay-as-you-go Blaze plan |
+| Scalability      | Far beyond what's needed                                                                                                                  |
+| Team familiarity | Assumed low; Firestore's NoSQL model is a different mental model from SQL                                                                 |
 
 **Pros:** Strong free Auth (50k MAU) and Hosting; no project pausing/sleeping behavior.
 **Cons:** Cloud Storage (needed for item photos, REQ-1/2) and Cloud Functions are **not available on the free Spark plan** — a card and the Blaze plan would be required even though usage would likely stay near $0; Firestore's document model fights the relational reporting this system needs (stocktake reconciliation, sales-by-period, CSV export), requiring more manual denormalization.
 
 ### Option C: Cloudflare (Pages + Workers + D1 + R2)
 
-| Dimension | Assessment |
-|---|---|
-| Complexity | Medium-High — no bundled Auth/admin layer, more assembly required |
-| Cost | $0 (generous free tier across all four services, including zero-egress file storage) |
-| Scalability | Far beyond what's needed |
-| Team familiarity | Assumed low; smaller ecosystem/tooling than Postgres for D1 |
+| Dimension        | Assessment                                                                           |
+| ---------------- | ------------------------------------------------------------------------------------ |
+| Complexity       | Medium-High — no bundled Auth/admin layer, more assembly required                    |
+| Cost             | $0 (generous free tier across all four services, including zero-egress file storage) |
+| Scalability      | Far beyond what's needed                                                             |
+| Team familiarity | Assumed low; smaller ecosystem/tooling than Postgres for D1                          |
 
 **Pros:** Everything free with generous limits (Workers 100k req/day, D1 5GB storage + 5M row-reads/day, R2 10GB storage with no egress fees — good for photos); no sleep/pause behavior at all.
 **Cons:** No ready-made authentication or admin dashboard — the two-role login system would need to be built from scratch; D1 (SQLite-based) is a thinner, newer ecosystem than Postgres for relational querying.
 
 ### Option D: AWS (Lambda + DynamoDB + Cognito, or RDS/S3)
 
-| Dimension | Assessment |
-|---|---|
-| Complexity | High — IAM, API Gateway, Lambda packaging, Cognito pool configuration all assembled by hand |
-| Cost | Lambda, DynamoDB, and Cognito (10k MAU) are genuinely always-free indefinitely; but S3 (file storage) and RDS (relational DB) are **not** always-free — only covered by a one-time 6-month/$100–200 starter credit, after which they're billed |
-| Scalability | Far beyond what's needed |
-| Team familiarity | Assumed low; steepest learning curve of the options considered |
+| Dimension        | Assessment                                                                                                                                                                                                                                     |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Complexity       | High — IAM, API Gateway, Lambda packaging, Cognito pool configuration all assembled by hand                                                                                                                                                    |
+| Cost             | Lambda, DynamoDB, and Cognito (10k MAU) are genuinely always-free indefinitely; but S3 (file storage) and RDS (relational DB) are **not** always-free — only covered by a one-time 6-month/$100–200 starter credit, after which they're billed |
+| Scalability      | Far beyond what's needed                                                                                                                                                                                                                       |
+| Team familiarity | Assumed low; steepest learning curve of the options considered                                                                                                                                                                                 |
 
 **Pros:** Genuinely free-forever compute/DB/auth primitives (Lambda, DynamoDB, Cognito) for teams already invested in AWS.
 **Cons:** The pieces this project actually needs — file storage for photos and ideally a relational database — aren't in AWS's permanent free tier; the always-free path (DynamoDB) is NoSQL, fighting the same relational-reporting problem as Firebase; no AWS-native free static hosting equivalent to Cloudflare Pages/Vercel, so a second provider would be needed regardless; substantially more manual setup and ongoing maintenance than a managed BaaS.
 
 ### Option E: Self-hosted on Oracle Cloud "Always Free" tier
 
-| Dimension | Assessment |
-|---|---|
-| Complexity | High — full ownership of OS, backups, security patching |
-| Cost | $0 (genuinely free-forever compute, storage, and bandwidth, not a trial) |
-| Scalability | Sufficient, but limited by the free instance's fixed resources |
-| Team familiarity | Assumed low; requires general Linux/ops skills to maintain |
+| Dimension        | Assessment                                                               |
+| ---------------- | ------------------------------------------------------------------------ |
+| Complexity       | High — full ownership of OS, backups, security patching                  |
+| Cost             | $0 (genuinely free-forever compute, storage, and bandwidth, not a trial) |
+| Scalability      | Sufficient, but limited by the free instance's fixed resources           |
+| Team familiarity | Assumed low; requires general Linux/ops skills to maintain               |
 
 **Pros:** Full control, no vendor free-tier limits or pausing to work around, no recurring cost ever.
 **Cons:** Shifts the "cost" from money to ongoing maintenance — OS updates, security patches, and backups become the team's responsibility indefinitely. For a volunteer-run shop with no dedicated IT support, this operational burden is a bigger risk than any of the managed options.

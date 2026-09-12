@@ -20,100 +20,118 @@ A simple tab/menu structure, with Admin-only sections hidden or disabled for the
 ## 2. Screens
 
 ### 2.1 Login
+
 - **Who:** everyone (unauthenticated)
 - **Purpose:** authenticate as Admin or User.
 - **Elements:** email/username + password. There is no in-app screen for creating or managing staff logins — new logins are provisioned manually outside the app (see section 4).
 
 ### 2.2 Stock overview
+
 - **Who:** Admin, User
 - **Requirements:** REQ-14
 - **Purpose:** browse current on-hand stock.
 - **Elements:** list/grid of items with photo, name, category filter, search; expanding an item shows on-hand quantity per size.
 
 ### 2.3 Item detail / edit
+
 - **Who:** view — Admin, User; edit — Admin only
 - **Requirements:** REQ-1, REQ-2, REQ-35, REQ-36, REQ-37
 - **Purpose:** view an item's details and stock per size; Admin can edit name, category, price, sizes offered, and photo (upload/replace/remove). Uploaded photos are automatically resized/compressed before saving (see `database-schema.md`), so no separate "resize your photo first" step is needed.
 - **Elements (Admin only):** an "Adjust stock" action per size, which opens a small form for a quantity change and a required note (REQ-35); an "Archive" / "Restore" action at the item level and at the individual size level (REQ-36, REQ-37), with archived sizes/items clearly labeled as such rather than hidden from Admin's own view.
 
 ### 2.4 Item management list
+
 - **Who:** Admin
 - **Requirements:** REQ-1, REQ-36
 - **Purpose:** list all items with an action to create a new one; entry point into item detail/edit (2.3). Includes a "show archived" toggle, since archived items are hidden by default.
 
 ### 2.4a Bulk initial stock entry
+
 - **Who:** Admin
 - **Requirements:** REQ-34
 - **Purpose:** the main onboarding screen — enter starting on-hand quantities for every item/size in one place (a spreadsheet-style grid: one row per item/size, an editable quantity column) rather than opening each item individually. Saving records each as a manual stock adjustment, not a sale or stocktake discrepancy. Reusable later too, e.g. after adding a batch of brand-new items.
 
 ### 2.5 Record a sale
+
 - **Who:** Admin, User
 - **Requirements:** REQ-23, REQ-24
 - **Purpose:** the main day-to-day screen for sales staff.
 - **Elements:** a fast type-ahead search across the full item catalog (by name, not just browsing categories, since the catalog can run into the hundreds of item/size combinations), then select size(s), enter quantity per line, add multiple lines, submit. Shows a warning (not a block) if a line would take stock negative. On submit, logs the sale and decrements stock immediately.
 
 ### 2.6 Orders list
+
 - **Who:** Admin
 - **Requirements:** REQ-5
 - **Purpose:** see all supplier orders with order number, supplier, date, and status; filter/search; entry point to create a new order or open an existing one.
 
 ### 2.7 Create order
+
 - **Who:** Admin
 - **Requirements:** REQ-3, REQ-4
 - **Purpose:** start a new supplier order.
 - **Elements:** supplier name field with autocomplete from previously used suppliers (or add new), order number, order date, and a repeatable line-item picker (item, size, quantity ordered).
 
 ### 2.8 Order detail
+
 - **Who:** Admin
 - **Requirements:** REQ-6, REQ-7, REQ-8, REQ-9, REQ-10, REQ-11, REQ-12, REQ-13
 - **Purpose:** the hub for managing one order through its lifecycle.
 - **Elements:** line items with quantity ordered vs. received so far; a status indicator showing the 5-stage sequence (Order Placed → Partially/Fully Received → Invoice Checked → Invoice Sent to Treasurer → Closed); buttons for the relevant next action (check in a delivery, mark invoice checked with optional note, mark invoice sent, close); a manual status override control that shows a confirmation warning before applying, since it bypasses the normal flow; delivery history for this order.
 
 ### 2.9 Check in a delivery
+
 - **Who:** Admin
 - **Requirements:** REQ-7, REQ-8
 - **Purpose:** record what arrived against an order (possibly one of several partial deliveries).
 - **Elements:** delivery date, and a quantity-received field per outstanding order line; submitting increases stock immediately and updates the order's received-vs-ordered totals and status.
 
 ### 2.10 Delivery history
+
 - **Who:** Admin
 - **Requirements:** REQ-9
 - **Purpose:** view all deliveries for one order, and (as a separate view) a shop-wide delivery history across all orders.
 
 ### 2.11 Stocktakes list
+
 - **Who:** Admin
 - **Requirements:** REQ-18
 - **Purpose:** list past stocktakes with date and scope (full/spot); entry point to start a new one or view a past one's results.
 
 ### 2.12 Start / enter a stocktake
+
 - **Who:** Admin
 - **Requirements:** REQ-15, REQ-16, REQ-17
 - **Purpose:** perform a stocktake.
 - **Elements:** choose date and scope (full, or a chosen subset of items/sizes for a spot stocktake); for each item/size in scope, show the system's expected quantity and a field to enter the counted quantity; on submit, the difference is calculated and shown per line, and stock is trued up to match the count.
 
 ### 2.13 Stocktake detail (past)
+
 - **Who:** Admin
 - **Requirements:** REQ-18
 - **Purpose:** review a completed stocktake — date, scope, and each line's expected/counted/calculated-sold figures.
 
 ### 2.14 Sales reports
+
 - **Who:** Admin, User
 - **Requirements:** REQ-19, REQ-20, REQ-21, REQ-22
 - **Purpose:** see units sold per item/size over a period.
 - **Elements:** date-range picker with quick presets (this month/term/year, or custom range); view totals per item/size or a shop-wide summary; a CSV export button.
 
 ### 2.15 Roster calendar
+
 - **Who:** Admin, User
 - **Requirements:** REQ-26, REQ-27, REQ-28, REQ-31
 - **Purpose:** the main roster screen.
 - **Elements:** calendar view of upcoming opening-time slots; slots within a school holiday period are visually marked as closed and not claimable; open slots show a "claim" action (enter a name); claimed slots show the name and an "un-claim" action.
 
 ### 2.16 Opening-times setup
+
 - **Who:** Admin
 - **Requirements:** REQ-25, REQ-29
 - **Purpose:** define/edit the recurring weekly pattern of opening times (day of week, start/end time); changes apply to future occurrences going forward.
 
 ### 2.17 School holidays setup
+
 - **Who:** Admin
 - **Requirements:** REQ-30, REQ-33
 - **Purpose:** add/edit/delete school holiday date ranges (with an optional label); these suppress opening-time slots on the roster calendar for their dates.

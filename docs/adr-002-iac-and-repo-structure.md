@@ -27,24 +27,24 @@ Adopt a **lightweight, native-tooling approach** to infrastructure as code, rath
 
 ### Option A: Lightweight — SQL migrations + git-native deploys
 
-| Dimension | Assessment |
-|---|---|
-| Complexity | Low — two purpose-built, well-documented free tools (Supabase CLI, the host's git integration), no new tool to learn |
-| Cost | $0 — both are part of the already-free services from ADR-001 |
-| Reproducibility | Everything that changes often (schema, code, config) is versioned in git; the Supabase project itself is a one-time manual step |
-| Team familiarity | Low learning curve — mostly "write a migration file, push to git" |
+| Dimension        | Assessment                                                                                                                      |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Complexity       | Low — two purpose-built, well-documented free tools (Supabase CLI, the host's git integration), no new tool to learn            |
+| Cost             | $0 — both are part of the already-free services from ADR-001                                                                    |
+| Reproducibility  | Everything that changes often (schema, code, config) is versioned in git; the Supabase project itself is a one-time manual step |
+| Team familiarity | Low learning curve — mostly "write a migration file, push to git"                                                               |
 
 **Pros:** Minimal tooling to learn and maintain; matches the "small cloud services" preference directly, since it adds no new service, just uses what ADR-001 already chose; every meaningful change is reviewable in git history.
 **Cons:** Not "true" one-command full reproducibility — recreating the Supabase project from absolute zero takes a few manual dashboard steps, documented rather than scripted.
 
 ### Option B: Full Terraform (community Supabase + Cloudflare/Vercel providers)
 
-| Dimension | Assessment |
-|---|---|
-| Complexity | Medium-High — a new tool, a state file to manage safely, provider version pinning |
-| Cost | $0 in cloud billing, but real time cost to set up and maintain |
-| Reproducibility | Highest — a single `terraform apply` can provision the entire stack, including the Supabase project itself |
-| Team familiarity | Assumed low; steepest learning curve of the two options |
+| Dimension        | Assessment                                                                                                 |
+| ---------------- | ---------------------------------------------------------------------------------------------------------- |
+| Complexity       | Medium-High — a new tool, a state file to manage safely, provider version pinning                          |
+| Cost             | $0 in cloud billing, but real time cost to set up and maintain                                             |
+| Reproducibility  | Highest — a single `terraform apply` can provision the entire stack, including the Supabase project itself |
+| Team familiarity | Assumed low; steepest learning curve of the two options                                                    |
 
 **Pros:** Strongest fit for "true" infrastructure as code — the entire stack, including the Supabase project itself, is declared in code and reproducible from scratch; valuable if multiple environments (e.g. staging + production) or disaster-recovery-from-nothing were real requirements.
 **Cons:** Adds a new tool and an ongoing maintenance responsibility (state file, provider updates, drift) for a system that will only ever run as a single instance for a single small shop; the community Supabase Terraform provider covers less than the official CLI; runs directly against the "keep cloud services and tooling small" preference.
