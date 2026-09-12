@@ -84,12 +84,10 @@ export function RosterPage() {
       const dateStr = isoDate(d);
       const dayOfWeek = d.getDay();
 
-      const holiday = holidays.find(h => dateStr >= h.start_date && dateStr <= h.end_date);
-      if (holiday) {
-        result.push({ date: dateStr, holidayLabel: holiday.label ?? 'School holiday', slots: [] });
-        continue;
-      }
-
+      // Only a day that would normally have an opening-time slot is worth
+      // showing at all -- otherwise every single day of a holiday range
+      // (weekends, days with no configured slot, etc.) would show up as an
+      // extra "closed" row that never appeared before the holiday existed.
       const daySlots = slots
         .filter(s => s.day_of_week === dayOfWeek)
         .sort((a, b) => a.start_time.localeCompare(b.start_time))
@@ -100,7 +98,12 @@ export function RosterPage() {
             null
         }));
 
-      if (daySlots.length > 0) {
+      if (daySlots.length === 0) continue;
+
+      const holiday = holidays.find(h => dateStr >= h.start_date && dateStr <= h.end_date);
+      if (holiday) {
+        result.push({ date: dateStr, holidayLabel: holiday.label ?? 'School holiday', slots: [] });
+      } else {
         result.push({ date: dateStr, holidayLabel: null, slots: daySlots });
       }
     }
