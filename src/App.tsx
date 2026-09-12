@@ -9,6 +9,9 @@ import { OrdersPage } from './pages/orders/OrdersPage';
 import { OrderFormPage } from './pages/orders/OrderFormPage';
 import { OrderDetailPage } from './pages/orders/OrderDetailPage';
 import { DeliveriesPage } from './pages/orders/DeliveriesPage';
+import { StocktakesPage } from './pages/stocktake/StocktakesPage';
+import { StocktakeFormPage } from './pages/stocktake/StocktakeFormPage';
+import { StocktakeDetailPage } from './pages/stocktake/StocktakeDetailPage';
 import { SettingsPage } from './pages/settings/SettingsPage';
 import { ItemsPage } from './pages/settings/ItemsPage';
 import { ItemFormPage } from './pages/settings/ItemFormPage';
@@ -73,7 +76,23 @@ function App() {
           path='/stocktake'
           element={
             <RequireAdmin>
-              <PlaceholderPage title='Stocktake' screenRef='sections 2.11-2.13' />
+              <StocktakesPage />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path='/stocktake/new'
+          element={
+            <RequireAdmin>
+              <StocktakeFormPage />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path='/stocktake/:id'
+          element={
+            <RequireAdmin>
+              <StocktakeDetailPage />
             </RequireAdmin>
           }
         />
