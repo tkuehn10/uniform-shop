@@ -65,6 +65,12 @@ even just checking status is fine; committing is not, until asked.
 - `VITE_SHOP_NAME` is a display-only string (the shop's name, shown on the login screen
   and the top nav bar via `src/lib/config.ts`) — not a credential, falls back to
   "Uniform Shop" if unset.
+- `VITE_LOGIN_EMAIL_DOMAIN` lets staff log in with a plain username: Supabase Auth only
+  understands emails, so each account is provisioned with a synthetic
+  `<username>@VITE_LOGIN_EMAIL_DOMAIN` address, and the login screen appends this same
+  domain before calling `signInWithPassword` (`src/pages/LoginPage.tsx`,
+  `src/lib/config.ts`). Not a real domain and never emailed anywhere — falls back to
+  `login.local` if unset.
 - Never put the `service_role` / `secret` key in the frontend `.env` — it only ever goes
   into a GitHub Actions secret (used by the keep-alive ping).
 - `.env` is gitignored; only `.env.example` (with placeholder values) is committed.

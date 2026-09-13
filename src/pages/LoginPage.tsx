@@ -1,12 +1,18 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { SHOP_NAME } from '../lib/config';
+import { SHOP_NAME, LOGIN_EMAIL_DOMAIN } from '../lib/config';
 
+// Staff log in with a plain username, not an email address. Supabase Auth
+// itself only knows about emails, so Admin provisions each account with a
+// synthetic `<username>@LOGIN_EMAIL_DOMAIN` address (docs/screens-and-flows.md
+// section 4) and this screen appends the same domain to whatever's typed
+// here before calling signInWithPassword -- the username/domain split never
+// needs to be a real, deliverable email address.
 export function LoginPage() {
   const { signInWithPassword, session } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -23,9 +29,11 @@ export function LoginPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    const trimmed = username.trim().toLowerCase();
+    if (!trimmed) return;
     setSubmitting(true);
     setError(null);
-    const { error } = await signInWithPassword(email, password);
+    const { error } = await signInWithPassword(`${trimmed}@${LOGIN_EMAIL_DOMAIN}`, password);
     setSubmitting(false);
     if (error) setError(error);
   }
@@ -34,15 +42,17 @@ export function LoginPage() {
     <div className='centered-page'>
       <form className='card' onSubmit={handleSubmit}>
         <h1>{SHOP_NAME}</h1>
-        <p className='muted'>Ask an Admin to create your login.</p>
+        <p className='muted'>Stock management system.</p>
         <label>
-          Email
+          Username
           <input
-            type='email'
-            value={email}
-            onChange={e => setEmail(e.target.value)}
+            type='text'
+            value={username}
+            onChange={e => setUsername(e.target.value)}
             required
             autoComplete='username'
+            autoCapitalize='none'
+            spellCheck={false}
           />
         </label>
         <label>

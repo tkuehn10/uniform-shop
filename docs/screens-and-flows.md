@@ -1,6 +1,6 @@
 # Screens & User Flows — Uniform Shop Stock System
 
-**Version:** 0.4 (draft)
+**Version:** 0.5 (draft)
 **Date:** 12 September 2026
 
 A working inventory of every screen the app needs, who can use it, and what it does — built from `requirements.md`. Use this as a build checklist and to catch missing flows before coding starts.
@@ -23,7 +23,7 @@ A simple tab/menu structure, with Admin-only sections hidden or disabled for the
 
 - **Who:** everyone (unauthenticated)
 - **Purpose:** authenticate as Admin or User.
-- **Elements:** email/username + password. There is no in-app screen for creating or managing staff logins — new logins are provisioned manually outside the app (see section 4).
+- **Elements:** username + password. Supabase Auth itself only has emails, so each login is provisioned with a synthetic `<username>@`-domain address behind the scenes (section 4) — staff never see or type an email. There is no in-app screen for creating or managing staff logins — new logins are provisioned manually outside the app.
 
 ### 2.2 Stock overview
 
@@ -144,7 +144,7 @@ None outstanding — all three were resolved and folded in above and in section 
 
 There is deliberately no "manage users" screen. New staff logins are created manually by whoever administers the Supabase project, via the Supabase dashboard or a short script. Roughly:
 
-1. Create the login in Supabase Authentication (dashboard: Authentication → Users → Add user, with an email and a temporary password; or the Supabase CLI/Admin API for a scriptable version), which creates a row in `auth.users` with a generated user id.
+1. Create the login in Supabase Authentication (dashboard: Authentication → Users → Add user; or the Supabase CLI/Admin API for a scriptable version), which creates a row in `auth.users` with a generated user id. Since staff log in with a username rather than a real email (2.1's login screen just asks for username + password), use a synthetic email of `<username>@<VITE_LOGIN_EMAIL_DOMAIN>` here — e.g. `jane@your-shop.login.local` — matching whatever domain the frontend is configured with (`.env`'s `VITE_LOGIN_EMAIL_DOMAIN`, see README). It's never a real, deliverable address; Supabase just requires the field to be syntactically valid.
 2. Insert a matching row into the app's `profiles` table using that same id, setting `display_name` and `role` (`admin` or `user`):
 
    ```sql
@@ -152,12 +152,13 @@ There is deliberately no "manage users" screen. New staff logins are created man
    values ('<auth-user-id-from-step-1>', 'Jane Smith', 'user');
    ```
 
-3. Send the staff member their email + temporary password (or a password-reset link) outside the app.
+3. Tell the staff member their username (the part before the `@`, e.g. `jane`) and temporary password outside the app — not the full synthetic email, which they never need to know or type.
 
 This is a one-off, low-frequency task (a handful of staff, added rarely), so a manual step-by-step process is a deliberate simplification rather than a gap — a proper "add staff" screen can be added later if turnover makes this annoying. A more polished version of this as a small runnable script belongs in an implementation/ops runbook once the Supabase project exists.
 
 ## 5. Change log
 
+- **v0.5:** Login (2.1) now takes a plain username instead of an email address; staff never see the synthetic `<username>@`-domain address Supabase Auth actually uses under the hood. Updated the provisioning steps in section 4 to match.
 - **v0.4:** Noted that photo uploads (2.3) are auto-compressed/resized on save, matching the move to in-database photo storage (ADR-001 Amendment 1).
 - **v0.3:** Filled the initial-setup gap and added item lifecycle actions — a bulk initial stock-entry screen (2.4a, REQ-34), an "Adjust stock" action with a required note on item detail (REQ-35), and archive/restore actions at both the item and size level, plus a "show archived" toggle on the item list (REQ-36, REQ-37).
 - **v0.2:** Resolved all three open questions from v0.1 — confirmed no in-app user management, with manual provisioning steps documented in section 4; sales screen (2.5) requires fast type-ahead search across the full catalog; order detail (2.8) shows a confirmation warning before applying a manual status override.

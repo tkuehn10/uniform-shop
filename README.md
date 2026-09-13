@@ -31,6 +31,8 @@ Planning docs (requirements, architecture decisions, database schema, screen spe
 
    Also set `VITE_SHOP_NAME` to the shop's actual name -- it's shown on the login screen and in the app's top nav bar. Not sensitive, just a display string; falls back to "Uniform Shop" if left unset.
 
+   Staff log in with a plain username rather than an email address. Set `VITE_LOGIN_EMAIL_DOMAIN` to any value you like (e.g. `your-shop.login.local`) -- it's never a real, deliverable email domain, just the suffix the app appends to whatever username someone types before authenticating with Supabase (which only understands emails). Falls back to `login.local` if left unset. Whatever value you pick here must match what you use when creating logins in the Supabase dashboard (step 5 below).
+
 3. **Link the Supabase CLI to your project** (one-off, per machine)
 
    ```sh
@@ -50,12 +52,14 @@ Planning docs (requirements, architecture decisions, database schema, screen spe
 
 5. **Create your first Admin login manually**
 
-   There's no in-app sign-up (see `docs/screens-and-flows.md` section 4). In the Supabase dashboard: Authentication → Users → Add user, then run:
+   There's no in-app sign-up (see `docs/screens-and-flows.md` section 4). Since staff log in with a username, not an email, create the Supabase Auth user with a synthetic email of `<username>@<your VITE_LOGIN_EMAIL_DOMAIN>` -- e.g. if you kept the example value above and want the username `tom`, use `tom@your-shop.login.local`. In the Supabase dashboard: Authentication → Users → Add user (with that synthetic email and a password), then run:
 
    ```sql
    insert into profiles (id, display_name, role)
    values ('<the-user-id-from-step-above>', 'Your Name', 'admin');
    ```
+
+   Tell the person their username (`tom`, not the full synthetic email) and password -- that's all they type in on the login screen.
 
 6. **Run the dev server**
 
@@ -72,7 +76,7 @@ Planning docs (requirements, architecture decisions, database schema, screen spe
 
 ## Deploying
 
-Connect this repository to a Cloudflare Pages project (build command `npm run build`, output directory `dist`). Add `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and `VITE_SHOP_NAME` as build variables in the Pages project settings (see `docs/implementation-roadmap.md` Phase 1 step 5 for exactly where) — every push to `main` then deploys automatically.
+Connect this repository to a Cloudflare Pages project (build command `npm run build`, output directory `dist`). Add `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SHOP_NAME`, and `VITE_LOGIN_EMAIL_DOMAIN` as build variables in the Pages project settings (see `docs/implementation-roadmap.md` Phase 1 step 5) — every push to `main` then deploys automatically.
 
 The Supabase project's free tier pauses after 7 days with no activity — `.github/workflows/supabase-keep-alive.yml` pings it daily to prevent this. It needs `SUPABASE_URL` and `SUPABASE_ANON_KEY` set as repository **variables** (Settings → Secrets and variables → Actions → Variables) before it will run successfully; see `docs/implementation-roadmap.md` Phase 1 step 6.
 
