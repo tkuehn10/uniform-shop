@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { RequireAdmin, RequireAuth } from './components/RequireAuth';
 import { LoginPage } from './pages/LoginPage';
+import { ChangePasswordPage } from './pages/ChangePasswordPage';
 import { StockPage } from './pages/StockPage';
 import { SalesPage } from './pages/SalesPage';
 import { OrdersPage } from './pages/orders/OrdersPage';
@@ -36,6 +37,9 @@ function App() {
         <Route path='/sales' element={<SalesPage />} />
         <Route path='/reports' element={<ReportsPage />} />
         <Route path='/roster' element={<RosterPage />} />
+
+        {/* Not linked from the nav; reached by typing the URL (screens-and-flows.md 2.18). */}
+        <Route path='/change-password' element={<ChangePasswordPage />} />
 
         <Route
           path='/orders'

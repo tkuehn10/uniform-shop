@@ -1,7 +1,7 @@
 # Implementation Roadmap — Uniform Shop Stock System
 
-**Version:** 1.2
-**Date:** 12 September 2026
+**Version:** 1.3
+**Date:** 22 September 2026
 **Repository:** https://github.com/tkuehn10/uniform-shop
 
 A single ordered checklist pulling together the decisions and action items scattered across `architecture-decision.md` (ADR-001), `adr-002-iac-and-repo-structure.md`, `database-schema.md`, and `screens-and-flows.md`. Work top to bottom; later phases assume earlier ones are done.
@@ -70,12 +70,13 @@ Roughly the order a real shop would start using the system, so each piece is tes
 ## Phase 4 — Before real use
 
 17. [ ] Manual test pass against the full REQ list in `requirements.md`
-18. [ ] Provision real staff logins (Admin + User accounts as needed)
+18. [ ] Provision real staff logins (Admin + User accounts as needed) — each person can then swap their temporary password for their own at `/change-password` (screens-and-flows.md 2.18)
 19. [ ] Do the real bulk initial stock entry with the shop's actual current inventory
 20. [ ] Set up the recurring opening-times pattern and any known school holiday periods for the term ahead
 
 ## Change log
 
+- **v1.3:** Added a hidden change-password page at `/change-password` (`src/pages/ChangePasswordPage.tsx`, REQ-38, screens-and-flows.md 2.18) for any logged-in staff member; it signs in again with the current password before calling `updateUser`. To make that work, `src/auth/AuthContext.tsx` now keys the profile load on the user id and stays in its loading state until the stored session has been read back, so a fresh session object (token refresh, re-sign-in, password change) no longer unmounts the current screen and a typed URL survives a page load instead of bouncing through `/login`. The login screen now returns a signed-out visitor to the page they asked for.
 - **v1.2:** Staff now log in with a plain username instead of an email address. Supabase Auth itself only understands emails, so each account is provisioned with a synthetic `<username>@VITE_LOGIN_EMAIL_DOMAIN` address, and the login screen (`src/pages/LoginPage.tsx`) appends the same configurable domain before calling `signInWithPassword` (falls back to `login.local` if unset). Updated the Cloudflare build-variables step, README, and `docs/screens-and-flows.md` section 4's provisioning steps to match.
 - **v1.1:** Item categories are now mandatory, restricted to a fixed set (Tops, Bottoms, Hats, Socks) instead of optional free text -- new `item_category` enum and a not-null `items.category` column (`supabase/migrations/20260912000002_item_categories.sql`), a required dropdown on the item-edit screen, and a category filter on the items list. Also reworked the record-a-sale screen: search now suggests one entry per item (not per item/size), and a size is chosen afterwards from a dropdown on the cart line -- the sale can't be submitted until every line has a size selected. The sales screen also now shows each item's photo and price with a running cart total, per an earlier request.
 - **v1.0:** Phase 3 complete — every screen in `screens-and-flows.md` is built and routed: item management + bulk initial stock entry, the record-a-sale screen (stock overview already existed), supplier orders + delivery check-in, full/spot stocktake, sales reports + CSV export, and roster + opening-times + school holidays. Also fixed `src/lib/database.types.ts`: the hand-written Row types were bare `interface`s, which silently broke every `insert`/`update`/`.eq()` call's typing against postgrest-js's generic constraints — switched to `type` aliases and added the missing `Relationships`/`Views`/`Functions` fields. Next up is Phase 4 — the real test pass and go-live setup.

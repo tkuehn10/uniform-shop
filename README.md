@@ -59,7 +59,7 @@ Planning docs (requirements, architecture decisions, database schema, screen spe
    values ('<the-user-id-from-step-above>', 'Your Name', 'admin');
    ```
 
-   Tell the person their username (`tom`, not the full synthetic email) and password -- that's all they type in on the login screen.
+   Tell the person their username (`tom`, not the full synthetic email) and password -- that's all they type in on the login screen. Once signed in, they can change the password themselves at `/change-password`; the page isn't linked from the menu, so pass on the address.
 
 6. **Run the dev server**
 

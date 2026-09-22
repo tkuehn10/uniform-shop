@@ -1,7 +1,7 @@
 # Uniform Shop Stock System — Requirements Document
 
-**Version:** 0.9 (draft)
-**Date:** 12 September 2026
+**Version:** 0.10 (draft)
+**Date:** 22 September 2026
 **Prepared for:** The uniform shop stock management project
 
 ## 1. Purpose
@@ -40,6 +40,8 @@ Two roles, each with their own login:
 | **User** (sales staff) | Record sales, view current stock levels and item/size availability, view the roster calendar and claim/un-claim opening-time slots. Cannot create orders, check in deliveries, or perform stocktakes |
 
 Each login is tied to an individual staff member (not shared), so actions (sales, stocktakes, deliveries) can be attributed to whoever performed them.
+
+Each staff member can change their own password from within the app (REQ-38). Creating logins, and resetting a password someone has forgotten, remain manual tasks for whoever administers the Supabase project (see `screens-and-flows.md` section 4).
 
 ## 4. Core data model (conceptual)
 
@@ -125,6 +127,10 @@ Each login is tied to an individual staff member (not shared), so actions (sales
 - **REQ-36:** Admin can archive an item, or an individual size within an item, removing it from the pickers used for sales, orders, and stock browsing day-to-day — without deleting it or any historical data that references it (past orders, deliveries, stocktakes, and sales stay intact and reportable).
 - **REQ-37:** Admin can restore (un-archive) a previously archived item or size, making it available again in day-to-day pickers.
 
+### 5.9 Staff accounts
+
+- **REQ-38:** Any logged-in staff member, Admin or User, can change their own password by entering their current password and a new one. The page is kept off the navigation menu and reached by URL only, so it stays out of the way on a shared shop device.
+
 ## 6. Non-functional notes
 
 - Small-scale system: expected to be used by a handful of staff, single shop location, item catalog in the tens to low hundreds of item/size combinations.
@@ -139,6 +145,7 @@ Each login is tied to an individual staff member (not shared), so actions (sales
 - Multi-location / multi-shop support
 - Roster notifications/reminders (e.g. emailing someone ahead of their shift)
 - One-off, unplanned closures that aren't entered as a school holiday period (e.g. a sudden unplanned closure) — Admin can cover most cases, including single public holidays, by adding a holiday period for that date range (see A13)
+- Self-service reset of a forgotten password — Supabase's built-in reset flow emails a link, and these logins have no real address (see `screens-and-flows.md` section 4), so an administrator sets a new password by hand instead
 
 ## 8. Open questions
 
@@ -146,6 +153,7 @@ None outstanding.
 
 ## 9. Change log
 
+- **v0.10:** Added a self-service password change for any logged-in staff member (REQ-38, section 3), reached by URL rather than from the menu. Noted that resetting a forgotten password stays a manual administrator task (section 7).
 - **v0.9:** Item categories are now mandatory and restricted to a fixed set — Tops, Bottoms, Hats, Socks — instead of optional free text (REQ-1, section 4).
 - **v0.8:** Added the initial-setup gap and item lifecycle management — a bulk stock-entry path for setting up starting quantities (REQ-34, A14), manual stock adjustments with a required note (REQ-35), and archiving (not deleting) items or individual sizes so historical data stays intact (REQ-36, REQ-37, A15).
 - **v0.7:** Added school holiday tracking to the roster — Admin defines holiday date ranges (REQ-30), the calendar visually marks them (REQ-31), and no opening-time slots are generated during them since the shop is assumed closed (REQ-32); holiday periods are editable (REQ-33). Reused the same mechanism to cover single-day closures like public holidays (A13), narrowing the earlier out-of-scope note.

@@ -1,7 +1,7 @@
 # Screens & User Flows — Uniform Shop Stock System
 
-**Version:** 0.5 (draft)
-**Date:** 12 September 2026
+**Version:** 0.6 (draft)
+**Date:** 22 September 2026
 
 A working inventory of every screen the app needs, who can use it, and what it does — built from `requirements.md`. Use this as a build checklist and to catch missing flows before coding starts.
 
@@ -17,13 +17,15 @@ A simple tab/menu structure, with Admin-only sections hidden or disabled for the
 - **Roster** — calendar, claim/un-claim shifts (both roles)
 - **Settings** — items, opening times, school holidays (Admin only)
 
+One page sits outside the menu on purpose: **Change password** (2.18), which any logged-in user reaches by typing `/change-password` into the address bar.
+
 ## 2. Screens
 
 ### 2.1 Login
 
 - **Who:** everyone (unauthenticated)
 - **Purpose:** authenticate as Admin or User.
-- **Elements:** username + password. Supabase Auth itself only has emails, so each login is provisioned with a synthetic `<username>@`-domain address behind the scenes (section 4) — staff never see or type an email. There is no in-app screen for creating or managing staff logins — new logins are provisioned manually outside the app.
+- **Elements:** username + password. Supabase Auth itself only has emails, so each login is provisioned with a synthetic `<username>@`-domain address behind the scenes (section 4) — staff never see or type an email. There is no in-app screen for creating or managing staff logins — new logins are provisioned manually outside the app — though staff can change their own password (2.18).
 
 ### 2.2 Stock overview
 
@@ -136,6 +138,15 @@ A simple tab/menu structure, with Admin-only sections hidden or disabled for the
 - **Requirements:** REQ-30, REQ-33
 - **Purpose:** add/edit/delete school holiday date ranges (with an optional label); these suppress opening-time slots on the roster calendar for their dates.
 
+### 2.18 Change password (hidden)
+
+- **Who:** any logged-in user (Admin or User)
+- **Requirements:** REQ-38
+- **Purpose:** let a staff member change their own password, e.g. to replace the temporary one they were given at provisioning (section 4).
+- **Elements:** current password, new password, confirm new password, "Change password" button, and a line showing which username is signed in. Success and error messages appear inline and the form stays on the page.
+- **Not in the nav:** reached only by typing `/change-password` into the address bar, so a shared shop device doesn't advertise it. A signed-out visitor is sent to login and then straight back here.
+- **Behaviour:** the current password is checked by signing in again with it before the update is sent, so a wrong current password is rejected with a clear message and the existing signed-in session is left untouched. Because that fresh sign-in happens seconds before the update, the page also satisfies Supabase's optional "Secure password change" setting without the emailed one-time code, which a synthetic address could never receive.
+
 ## 3. Open questions for this flow set
 
 None outstanding — all three were resolved and folded in above and in section 4.
@@ -152,12 +163,15 @@ There is deliberately no "manage users" screen. New staff logins are created man
    values ('<auth-user-id-from-step-1>', 'Jane Smith', 'user');
    ```
 
-3. Tell the staff member their username (the part before the `@`, e.g. `jane`) and temporary password outside the app — not the full synthetic email, which they never need to know or type.
+3. Tell the staff member their username (the part before the `@`, e.g. `jane`) and temporary password outside the app — not the full synthetic email, which they never need to know or type. Once signed in they can replace the temporary password themselves at `/change-password` (2.18).
 
 This is a one-off, low-frequency task (a handful of staff, added rarely), so a manual step-by-step process is a deliberate simplification rather than a gap — a proper "add staff" screen can be added later if turnover makes this annoying. A more polished version of this as a small runnable script belongs in an implementation/ops runbook once the Supabase project exists.
 
+Supabase's own "forgot password" flow emails a reset link, which a synthetic address can never receive, so a forgotten password is also reset by hand. Whoever administers the Supabase project sets a new one with the Admin API (`auth.admin.updateUserById`), or from the dashboard's user page where that option is offered.
+
 ## 5. Change log
 
+- **v0.6:** Added a hidden change-password page (2.18, REQ-38), reached by URL rather than from the menu, so staff can replace the temporary password from provisioning themselves. Section 1 and 2.1 point to it; section 4 now also covers resetting a forgotten password.
 - **v0.5:** Login (2.1) now takes a plain username instead of an email address; staff never see the synthetic `<username>@`-domain address Supabase Auth actually uses under the hood. Updated the provisioning steps in section 4 to match.
 - **v0.4:** Noted that photo uploads (2.3) are auto-compressed/resized on save, matching the move to in-database photo storage (ADR-001 Amendment 1).
 - **v0.3:** Filled the initial-setup gap and added item lifecycle actions — a bulk initial stock-entry screen (2.4a, REQ-34), an "Adjust stock" action with a required note on item detail (REQ-35), and archive/restore actions at both the item and size level, plus a "show archived" toggle on the item list (REQ-36, REQ-37).

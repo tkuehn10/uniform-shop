@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { SHOP_NAME, LOGIN_EMAIL_DOMAIN } from '../lib/config';
 
@@ -12,10 +12,14 @@ import { SHOP_NAME, LOGIN_EMAIL_DOMAIN } from '../lib/config';
 export function LoginPage() {
   const { signInWithPassword, session } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // RequireAuth records the page a signed-out visitor was heading for.
+  const from = (location.state as { from?: string } | null)?.from ?? '/stock';
 
   // Once sign-in succeeds, AuthContext's session state updates asynchronously
   // (via supabase.auth.onAuthStateChange) — nothing else on this page redirects
@@ -23,9 +27,9 @@ export function LoginPage() {
   // nothing happened even though auth actually succeeded.
   useEffect(() => {
     if (session) {
-      navigate('/stock', { replace: true });
+      navigate(from, { replace: true });
     }
-  }, [session, navigate]);
+  }, [session, navigate, from]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
