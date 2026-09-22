@@ -9,7 +9,7 @@ import { isoDate } from '../lib/dates';
 // slots show the name and an "un-claim" action; dates within a school
 // holiday period are visually marked as closed and not claimable (REQ-32).
 
-const WEEKS_AHEAD = 6;
+const WEEKS_AHEAD = 15;
 interface DayEntry {
   date: string;
   holidayLabel: string | null;
